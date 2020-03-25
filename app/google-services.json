@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "721444271113",
+    "firebase_url": "https://logon-ka-maseeha.firebaseio.com",
+    "project_id": "logon-ka-maseeha",
+    "storage_bucket": "logon-ka-maseeha.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:721444271113:android:8508767d174c36a9a9f4d8",
+        "android_client_info": {
+          "package_name": "com.company.logon_ka_maseeha"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "721444271113-7lghrvl0eakls21qvkj6ouiih45kjqft.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.company.logon_ka_maseeha",
+            "certificate_hash": "15dce862be103bfa8bdfee4bafb55a9e8be2bf6f"
+          }
+        },
+        {
+          "client_id": "721444271113-43lv1ut6602a7asodabbaceg49v64iud.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCf7ka2qVF06R0ghBdkJxUYH1RL_8CSEFg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "721444271113-fselfk74l3sfrdehdr1hnpf4m0vqhhni.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
