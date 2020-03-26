@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">logon_ka_maseeha</string>
+    <string-array name="Product_Types">
+        <item>Clothes</item>
+        <item>Furniture</item>
+        <item>Games</item>
+        <item>Electronics</item>
+        <item>Tools</item>
+        <item>Books</item>
+        <item>Utensils</item>
+        <item>Others</item>
+    </string-array>
 </resources>
