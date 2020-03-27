@@ -13,7 +13,8 @@
             android:exported="true"/>
         <activity android:name=".UserPage" />
         <activity android:name=".Login" />
-        <activity android:name=".SignUp" />
+        <activity android:name=".SignUp"
+            android:exported="true"/>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

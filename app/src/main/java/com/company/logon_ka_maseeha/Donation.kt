@@ -3,18 +3,25 @@ package com.company.logon_ka_maseeha
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.widget.*
-import androidx.core.view.get
+import androidx.annotation.RequiresApi
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import com.google.firebase.storage.ktx.storageMetadata
 import kotlinx.android.synthetic.main.activity_donation.*
+import java.sql.Timestamp
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 
 class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
@@ -26,11 +33,17 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         lateinit var filePath: Uri
         lateinit var imgView: ImageView
         lateinit var downloadUri: String
+        lateinit var fileName: String
+        val db = Firebase.firestore
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_donation)
+
+
+        val mAuth = FirebaseAuth.getInstance()
+        val firebaseUser = mAuth.currentUser
 
         val product: Spinner = product_type
         Log.i(TAG, "Test message!")
@@ -44,6 +57,16 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         }
         product.onItemSelectedListener = this
 
+//        val docRef = db.collection("Users").document("ashishleiot@gmail.com").collection("Donated Items")
+//        docRef.get()
+//            .addOnSuccessListener {
+//                    docs -> for(doc in docs) {
+//                    Log.i(TAG, "${doc.id} => ${doc.data} ${doc.get("type")}")
+//                }
+//            }.addOnFailureListener {
+//                exception -> Log.i(TAG, "Error: ", exception)
+//            }
+
         selectImg.setOnClickListener{
             val intent = Intent()
             intent.type = "image/*"
@@ -56,13 +79,13 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         }
 
         final_donate.setOnClickListener {
-            displayData()
+            uploadData()
         }
     }
 
     private fun uploadToFirebase() {
         val storageRef = storage.reference
-        var fileName = filePath.toString()
+        fileName = filePath.toString()
         fileName = fileName.substring(fileName.lastIndexOf("/") + 1)
         val imageRef: StorageReference? = storageRef.child(fileName)
         //imageRef.name == that will give images name
@@ -88,6 +111,7 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                     Log.i(TAG, "Error getting urls")
                 }
         }
+        Log.i(TAG, "$urlTask")
 //        uploadTask?.addOnSuccessListener {
 //            Toast.makeText(this, "Image Uploaded", Toast.LENGTH_LONG).show()
 //        }?.addOnFailureListener {
@@ -114,10 +138,30 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         }
     }
 
-    private fun displayData() {
-        val mno = mobile_no.text
-        val userAddress = user_address.text
-        Log.i(TAG, "$mno $userAddress $item")
+    private fun uploadData() {
+        val time = Timestamp(System.currentTimeMillis())
+        val email = intent.getStringExtra("email")
+
+        val itemDetails = hashMapOf(
+            "Type" to item,
+            "Mobile_No" to mobile_no.toString(),
+            "Address" to user_address.toString(),
+            "ImageName" to fileName,
+            "DownloadUrl" to filePath,
+            "Timestamp" to time
+        )
+
+        Log.i(TAG, "$itemDetails")
+
+        val docRef = db.collection("Users").document("ashishleiot@gmail.com").collection("Donated Items")
+        docRef.add(itemDetails)
+            .addOnSuccessListener {
+                documentRef -> Log.i(TAG, documentRef.id)
+            }
+            .addOnFailureListener{
+                exception -> Log.i(TAG, "Error", exception)
+            }
+
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {

@@ -18,26 +18,24 @@
 
         <Button
             android:id="@+id/main_sign_up"
-            android:layout_width="wrap_content"
+            android:layout_width="122dp"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginStart="130dp"
-            android:layout_marginTop="158dp"
+            android:layout_marginStart="109dp"
+            android:layout_marginTop="157dp"
             android:text="Sign Up" />
 
         <Button
             android:id="@+id/main_sign_in"
-            android:layout_width="wrap_content"
+            android:layout_width="122dp"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_centerInParent="true"
-            android:layout_marginStart="130dp"
-            android:layout_marginTop="158dp"
-            android:layout_marginEnd="174dp"
-            android:layout_marginBottom="424dp"
+            android:layout_marginEnd="146dp"
+            android:layout_marginBottom="400dp"
             android:text="Sign In" />
 
         <com.google.android.gms.common.SignInButton
@@ -45,11 +43,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
-            android:layout_marginStart="112dp"
-            android:layout_marginTop="320dp"
+            android:layout_marginStart="110dp"
+            android:layout_marginTop="360dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
-        <!--            app:layout_constraintTop_toBottomOf="@+id/textView" -->
 
     </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
