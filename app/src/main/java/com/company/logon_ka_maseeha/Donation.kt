@@ -19,6 +19,7 @@ import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import com.google.firebase.storage.ktx.storageMetadata
 import kotlinx.android.synthetic.main.activity_donation.*
+import java.net.FileNameMap
 import java.sql.Timestamp
 import java.time.Instant
 import java.time.format.DateTimeFormatter
@@ -44,6 +45,7 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         val mAuth = FirebaseAuth.getInstance()
         val firebaseUser = mAuth.currentUser
+        Log.i(TAG, "User is: $firebaseUser")
 
         val product: Spinner = product_type
         Log.i(TAG, "Test message!")
@@ -57,16 +59,6 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         }
         product.onItemSelectedListener = this
 
-//        val docRef = db.collection("Users").document("ashishleiot@gmail.com").collection("Donated Items")
-//        docRef.get()
-//            .addOnSuccessListener {
-//                    docs -> for(doc in docs) {
-//                    Log.i(TAG, "${doc.id} => ${doc.data} ${doc.get("type")}")
-//                }
-//            }.addOnFailureListener {
-//                exception -> Log.i(TAG, "Error: ", exception)
-//            }
-
         selectImg.setOnClickListener{
             val intent = Intent()
             intent.type = "image/*"
@@ -75,25 +67,22 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         }
 
         uploadImg.setOnClickListener {
-            uploadToFirebase()
+            fileName = uploadToFirebase()
         }
 
         final_donate.setOnClickListener {
-            uploadData()
+            uploadData(fileName)
         }
     }
 
-    private fun uploadToFirebase() {
+    private fun uploadToFirebase(): String{
         val storageRef = storage.reference
+        Log.i(TAG, "FP is $filePath")
         fileName = filePath.toString()
         fileName = fileName.substring(fileName.lastIndexOf("/") + 1)
         val imageRef: StorageReference? = storageRef.child(fileName)
-        //imageRef.name == that will give images name
-        val metadata = storageMetadata {
-            contentType = "images/jpeg"
-        }
 
-        val uploadTask = imageRef?.putFile(filePath, metadata)
+        val uploadTask = imageRef?.putFile(filePath)
 
         val urlTask = uploadTask?.continueWithTask { task ->
             if (!task.isSuccessful) {
@@ -102,6 +91,7 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 }
             }
             imageRef.downloadUrl
+
         }?.addOnCompleteListener { task ->
                 if(task.isSuccessful) {
                     downloadUri = task.result.toString()
@@ -111,16 +101,11 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                     Log.i(TAG, "Error getting urls")
                 }
         }
-        Log.i(TAG, "$urlTask")
-//        uploadTask?.addOnSuccessListener {
-//            Toast.makeText(this, "Image Uploaded", Toast.LENGTH_LONG).show()
-//        }?.addOnFailureListener {
-//            exception -> Log.e(TAG, "Error $exception")
-//        }
 
         if (uploadTask == null) {
             Toast.makeText(this, "Please select an image before uploading", Toast.LENGTH_LONG).show()
         }
+        return fileName
     }
 
     protected override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -138,25 +123,32 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         }
     }
 
-    private fun uploadData() {
+    private fun uploadData(fileName: String) {
         val time = Timestamp(System.currentTimeMillis())
         val email = intent.getStringExtra("email")
+        Log.i(TAG, "$email?")
+
+        val mno = mobile_no as EditText
+        val userAddress = user_address as EditText
 
         val itemDetails = hashMapOf(
             "Type" to item,
-            "Mobile_No" to mobile_no.toString(),
-            "Address" to user_address.toString(),
+            "Mobile_No" to mno.text.toString().toInt(),
+            "Address" to userAddress.text.toString(),
             "ImageName" to fileName,
-            "DownloadUrl" to filePath,
+            "DownloadUrl" to downloadUri,
             "Timestamp" to time
         )
 
         Log.i(TAG, "$itemDetails")
 
-        val docRef = db.collection("Users").document("ashishleiot@gmail.com").collection("Donated Items")
+        val docRef = db.collection("Users").document(email).collection("Donated Items")
         docRef.add(itemDetails)
             .addOnSuccessListener {
                 documentRef -> Log.i(TAG, documentRef.id)
+
+                val intent = Intent(this, UserPage::class.java)
+                startActivity(intent)
             }
             .addOnFailureListener{
                 exception -> Log.i(TAG, "Error", exception)
@@ -172,5 +164,3 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         TODO("Not yet implemented")
     }
 }
-
-

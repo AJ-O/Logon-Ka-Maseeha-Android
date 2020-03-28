@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.EditText
 import android.widget.Toast
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -23,10 +24,12 @@ class Login : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        val email = emailId.toString()
-        val pass = password.toString()
-
         login.setOnClickListener {
+            val ele1 = sign_in_emailId as EditText
+            val email = ele1.text.toString()
+
+            val ele2 = sign_in_password as EditText
+            val pass = ele2.text.toString()
 
             if(email.isBlank() or pass.isBlank()) {
                 Toast.makeText(this, "Kindly enter all the required data", Toast.LENGTH_LONG).show()
@@ -53,6 +56,7 @@ class Login : AppCompatActivity() {
                     if(hashPassword == currHashedPassword) {
                             Log.i(TAG, "User exists!")
                             val intent = Intent(this, UserPage::class.java)
+                            intent.putExtra("email", email)
                             startActivity(intent)
                     } else {
                         Toast.makeText(this, "Kindly enter the right Password", Toast.LENGTH_LONG).show()

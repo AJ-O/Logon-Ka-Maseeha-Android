@@ -1,17 +1,15 @@
 package com.company.logon_ka_maseeha
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import kotlinx.android.synthetic.main.activity_login.*
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_sign_up.*
 import java.security.MessageDigest
-import java.util.*
 
 
 class SignUp : AppCompatActivity() {
@@ -29,14 +27,21 @@ class SignUp : AppCompatActivity() {
 
         sign_up.setOnClickListener {
 
-            val user = username.toString()
-            val email = sign_in_emailId.toString()
-            val pass = password.toString()
+            val userEle = sign_up_username as EditText
+            val user = userEle.text.toString()
 
-            if(user.isBlank() or email.isBlank() or pass.isBlank()){
+            val emailEle = sign_up_emailId as EditText
+            val email = emailEle.text.toString()
+
+            val passEle = sign_up_password as EditText
+            val userPassword = passEle.text.toString()
+
+            Log.i(TAG, "$user, $email, $userPassword")
+            if(user.isBlank() or email.isBlank() or userPassword.isBlank()){
                 Toast.makeText(this, "Kindly enter the require data", Toast.LENGTH_LONG).show()
             } else {
-                getData(user, email, pass)
+                Log.i(TAG, "$user, $email, $userPassword")
+                getData(user, email, userPassword)
             }
         }
     }

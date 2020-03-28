@@ -16,7 +16,7 @@
 
 
         <EditText
-            android:id="@+id/username"
+            android:id="@+id/sign_up_username"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
@@ -30,7 +30,7 @@
             app:layout_constraintStart_toStartOf="parent" />
 
         <EditText
-            android:id="@+id/sign_in_emailId"
+            android:id="@+id/sign_up_emailId"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
@@ -42,7 +42,7 @@
             android:inputType="textEmailAddress" />
 
         <EditText
-            android:id="@+id/sign_in_password"
+            android:id="@+id/sign_up_password"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"

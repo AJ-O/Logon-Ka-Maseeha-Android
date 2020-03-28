@@ -94,5 +94,15 @@
             android:layout_marginEnd="81dp"
             android:text="Upload Image" />
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="93dp"
+            android:layout_marginBottom="101dp">
+
+        </com.google.android.material.textfield.TextInputLayout>
+
     </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
