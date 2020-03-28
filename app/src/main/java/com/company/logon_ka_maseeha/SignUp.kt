@@ -85,6 +85,7 @@ class SignUp : AppCompatActivity() {
                             Toast.makeText(this@SignUp, "$user Signed Up", Toast.LENGTH_LONG).show()
                             val intent = Intent(this, Login::class.java)
                             intent.putExtra("email", email)
+                            Log.i(TAG, "$intent $email")
                             startActivity(intent)
                         }
                         .addOnFailureListener {

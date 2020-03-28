@@ -57,6 +57,7 @@ class Login : AppCompatActivity() {
                             Log.i(TAG, "User exists!")
                             val intent = Intent(this, UserPage::class.java)
                             intent.putExtra("email", email)
+                            Log.i(TAG, "${intent.extras} $email")
                             startActivity(intent)
                     } else {
                         Toast.makeText(this, "Kindly enter the right Password", Toast.LENGTH_LONG).show()

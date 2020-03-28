@@ -42,7 +42,6 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_donation)
 
-
         val mAuth = FirebaseAuth.getInstance()
         val firebaseUser = mAuth.currentUser
         Log.i(TAG, "User is: $firebaseUser")
@@ -77,7 +76,7 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     private fun uploadToFirebase(): String{
         val storageRef = storage.reference
-        Log.i(TAG, "FP is $filePath")
+        Log.i(TAG, "FP is $filePath") //filePath is simply the image data that will be received when onActivityResult is completed
         fileName = filePath.toString()
         fileName = fileName.substring(fileName.lastIndexOf("/") + 1)
         val imageRef: StorageReference? = storageRef.child(fileName)
@@ -126,7 +125,7 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private fun uploadData(fileName: String) {
         val time = Timestamp(System.currentTimeMillis())
         val email = intent.getStringExtra("email")
-        Log.i(TAG, "$email?")
+        Log.i(TAG, "email is: $email")
 
         val mno = mobile_no as EditText
         val userAddress = user_address as EditText
@@ -148,12 +147,12 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 documentRef -> Log.i(TAG, documentRef.id)
 
                 val intent = Intent(this, UserPage::class.java)
+                intent.putExtra("email", email)
                 startActivity(intent)
             }
             .addOnFailureListener{
                 exception -> Log.i(TAG, "Error", exception)
             }
-
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
