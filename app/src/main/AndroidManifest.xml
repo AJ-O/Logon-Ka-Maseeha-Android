@@ -9,8 +9,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".StatusPage"></activity>
-        <activity android:name=".UserStatusPage" />
+        <activity android:name=".StatusPage"
+            android:exported="true"/>
         <activity
             android:name=".Donation"
             android:exported="true" />
