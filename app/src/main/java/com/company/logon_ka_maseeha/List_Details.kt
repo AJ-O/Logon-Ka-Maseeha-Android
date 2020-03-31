@@ -1,6 +1,6 @@
 package com.company.logon_ka_maseeha
 
-import com.google.firebase.Timestamp
+import android.graphics.Bitmap
+import java.util.Date
 
-
-data class List_Item(val productType: String, val productStatus: String, val mobileNo: Long, val donateDate: Timestamp)
+data class ListItem(val productType: String, val productStatus: String, val mobileNo: Long, val donateDate: Date, val bmp: Bitmap)

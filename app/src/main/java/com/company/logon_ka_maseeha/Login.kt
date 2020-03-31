@@ -1,5 +1,6 @@
 package com.company.logon_ka_maseeha
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -11,6 +12,7 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_login.*
 import java.lang.StringBuilder
 import java.security.MessageDigest
+import android.content.SharedPreferences
 
 class Login : AppCompatActivity() {
 
@@ -18,6 +20,7 @@ class Login : AppCompatActivity() {
         val db = Firebase.firestore
         private const val TAG = "DocSnippets"
         const val HEX_CHARS = "0123456789ABCDEF"
+        private const val sharedPrefFile = "appSharedFile"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,22 +49,29 @@ class Login : AppCompatActivity() {
         val docRef = db.collection("Users").document(email)
 
         docRef.get()
-            .addOnSuccessListener {
-                    docs ->
+            .addOnSuccessListener { docs ->
                 if (docs.exists()) {
                     val hashPassword = docs.get("Password")
                     val bytes = MessageDigest.getInstance("SHA-256").digest(pass.toByteArray())
                     val currHashedPassword = printHexBinary(bytes)
 
                     if(hashPassword == currHashedPassword) {
-                            Log.i(TAG, "User exists!")
-                            val intent = Intent(this, UserPage::class.java)
-                            intent.putExtra("email", email)
-                            Log.i(TAG, "${intent.extras} $email")
-                            startActivity(intent)
+                        Log.i(TAG, "User exists!")
+
+                        val sharedPreferences: SharedPreferences = this.getSharedPreferences(sharedPrefFile, Context.MODE_PRIVATE)
+                        val editor:SharedPreferences.Editor = sharedPreferences.edit()
+                        editor.putString("email", email)
+                        editor.apply()
+                        editor.commit()
+
+                        val intent = Intent(this, UserPage::class.java)
+                        intent.putExtra("email", email)
+                        Log.i(TAG, "${intent.extras} $email")
+                        startActivity(intent)
                     } else {
                         Toast.makeText(this, "Kindly enter the right Password", Toast.LENGTH_LONG).show()
                     }
+
 
                 } else {
                     Log.i(TAG, "User does not exists, kindly register first")

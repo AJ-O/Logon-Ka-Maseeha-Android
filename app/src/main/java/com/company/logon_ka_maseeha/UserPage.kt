@@ -1,6 +1,8 @@
 package com.company.logon_ka_maseeha
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -15,6 +17,10 @@ class UserPage : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user_page)
+
+        val sharedPreferences: SharedPreferences = getSharedPreferences("appSharedFile", Context.MODE_PRIVATE)
+        val test = sharedPreferences.getString("email", "")
+        Log.i(TAG, "shared pref: $test")
 
         val email = intent.getStringExtra("email")
         Log.i(TAG, "email is $email")
