@@ -1,7 +1,9 @@
 package com.company.logon_ka_maseeha
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -42,9 +44,9 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_donation)
 
-        val mAuth = FirebaseAuth.getInstance()
-        val firebaseUser = mAuth.currentUser
-        Log.i(TAG, "User is: $firebaseUser")
+//        val mAuth = FirebaseAuth.getInstance()
+//        val firebaseUser = mAuth.currentUser
+//        Log.i(TAG, "User is: $firebaseUser")
 
         val product: Spinner = product_type
         Log.i(TAG, "Test message!")
@@ -124,7 +126,9 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     private fun uploadData(fileName: String) {
         val time = Timestamp(System.currentTimeMillis())
-        val email = intent.getStringExtra("email")
+        //val email = intent.getStringExtra("email")
+        val sharedPreferences: SharedPreferences = getSharedPreferences("appSharedFile", Context.MODE_PRIVATE)
+        val email = sharedPreferences.getString("email", "")
         Log.i(TAG, "email is: $email")
 
         val mno = mobile_no as EditText
@@ -142,18 +146,21 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         Log.i(TAG, "$itemDetails")
 
-        val docRef = db.collection("Users").document(email).collection("Donated Items")
-        docRef.add(itemDetails)
-            .addOnSuccessListener {
-                documentRef -> Log.i(TAG, documentRef.id)
+        val itemDonatedRef = db.collection("Items Donated")
+        itemDonatedRef.add(itemDetails).addOnSuccessListener {
+            documentRef ->  Log.i(TAG, "Data added to items, id: " + documentRef.id)
+        }.addOnFailureListener{
+            exception -> Log.i(TAG, "Error adding to items donated--", exception)
+        }
 
-                val intent = Intent(this, UserPage::class.java)
-                intent.putExtra("email", email)
-                startActivity(intent)
-            }
-            .addOnFailureListener{
+        val docRef = email?.let { db.collection("Users").document(it).collection("Donated Items") }
+        docRef?.add(itemDetails)?.addOnSuccessListener { documentRef -> Log.i(TAG, documentRef.id)
+            val intent = Intent(this, UserPage::class.java)
+            intent.putExtra("email", email)
+            startActivity(intent)
+        }?.addOnFailureListener{
                 exception -> Log.i(TAG, "Error", exception)
-            }
+        }
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {

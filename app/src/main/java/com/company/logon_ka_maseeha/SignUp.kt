@@ -82,10 +82,8 @@ class SignUp : AppCompatActivity() {
                     docRef.set(userData)
                         .addOnSuccessListener {
                             Log.i(TAG,"User Added!")
-                            Toast.makeText(this@SignUp, "$user Signed Up", Toast.LENGTH_LONG).show()
+                            Toast.makeText(this@SignUp, "$user Signed Up, Kindly Login to continue", Toast.LENGTH_LONG).show()
                             val intent = Intent(this, Login::class.java)
-                            intent.putExtra("email", email)
-                            Log.i(TAG, "$intent $email")
                             startActivity(intent)
                         }
                         .addOnFailureListener {

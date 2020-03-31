@@ -3,9 +3,11 @@ package com.company.logon_ka_maseeha
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_user_page.*
 
 class UserPage : AppCompatActivity() {
@@ -19,11 +21,17 @@ class UserPage : AppCompatActivity() {
         setContentView(R.layout.activity_user_page)
 
         val sharedPreferences: SharedPreferences = getSharedPreferences("appSharedFile", Context.MODE_PRIVATE)
-        val test = sharedPreferences.getString("email", "")
-        Log.i(TAG, "shared pref: $test")
+        val email = sharedPreferences.getString("email", "")
+        val photoUrl = sharedPreferences.getString("photoUrl", "")
+        val googleUserName = sharedPreferences.getString("username", "")
 
-        val email = intent.getStringExtra("email")
-        Log.i(TAG, "email is $email")
+        Picasso.get().load(photoUrl).into(userDP)
+        val userNameEle = userName as TextView
+        userNameEle.text = googleUserName
+        Log.i(TAG, "shared pref: $email")
+
+        //val email = intent.getStringExtra("email")
+        //Log.i(TAG, "email is $email")
 
         donate_item_btn.setOnClickListener {
             val intent = Intent(this, Donation::class.java)

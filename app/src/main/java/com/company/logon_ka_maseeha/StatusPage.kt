@@ -1,6 +1,8 @@
 package com.company.logon_ka_maseeha
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -8,10 +10,8 @@ import android.util.Log
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
 import kotlin.collections.ArrayList
 
@@ -32,11 +32,14 @@ class StatusPage : AppCompatActivity() {
         val storage = Firebase.storage
         val storageRef = storage.reference
 
-        val email = intent.getStringExtra("email")?: ""
+//        val email = intent.getStringExtra("email")?: ""
+        val sharedPreferences: SharedPreferences = getSharedPreferences("appSharedFile", Context.MODE_PRIVATE)
+        val email = sharedPreferences.getString("email", "")?:""
         Log.i(TAG, email)
-        val docRef = db.collection("Users").document("ashishleiot@gmail.com").collection("Donated Items")
+
+        val docRef = db.collection("Users").document(email).collection("Donated Items")
         val lists = ArrayList<ListItem>()
-        val one_mb: Long = 1024 * 1024 //Max size of image
+        val oneMb: Long = 1024 * 1024 //Max size of image
         docRef.get()
             .addOnSuccessListener { docs ->
                 if(docs == null) {
@@ -54,7 +57,7 @@ class StatusPage : AppCompatActivity() {
                         val timeString = donatedTime.toDate()
                         val imageRef = storageRef.child(imageName as String)
 
-                        imageRef.getBytes(one_mb).addOnSuccessListener {
+                        imageRef.getBytes(oneMb).addOnSuccessListener {
                             val bmp = BitmapFactory.decodeByteArray(it, 0, it.size)
                             lists.add(
                                 ListItem(

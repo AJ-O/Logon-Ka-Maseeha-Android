@@ -49,18 +49,24 @@ class Login : AppCompatActivity() {
         val docRef = db.collection("Users").document(email)
 
         docRef.get()
-            .addOnSuccessListener { docs ->
-                if (docs.exists()) {
-                    val hashPassword = docs.get("Password")
+            .addOnSuccessListener { doc ->
+                if (doc.exists()) {
+                    val hashPassword = doc.get("Password")
                     val bytes = MessageDigest.getInstance("SHA-256").digest(pass.toByteArray())
                     val currHashedPassword = printHexBinary(bytes)
 
                     if(hashPassword == currHashedPassword) {
                         Log.i(TAG, "User exists!")
 
+                        val manualSignInUserName = doc.get("Name") as String
+
                         val sharedPreferences: SharedPreferences = this.getSharedPreferences(sharedPrefFile, Context.MODE_PRIVATE)
                         val editor:SharedPreferences.Editor = sharedPreferences.edit()
+
                         editor.putString("email", email)
+                        editor.putString("username", manualSignInUserName)
+                        editor.putString("photoUrl", "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.spacetelescope.org%2Fimages%2Fheic1808a%2F&psig=AOvVaw3wRutboX88FRSahHazed3S&ust=1585767636711000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCICu4vyyxegCFQAAAAAdAAAAABAQ")
+
                         editor.apply()
                         editor.commit()
 

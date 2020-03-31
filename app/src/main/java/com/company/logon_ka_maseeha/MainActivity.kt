@@ -2,6 +2,7 @@ package com.company.logon_ka_maseeha
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -25,6 +26,7 @@ class MainActivity : AppCompatActivity() {
         private const val RC_SIGN_IN = 9001
         private lateinit var auth: FirebaseAuth
         private lateinit var googleSignInClient: GoogleSignInClient
+        private const val sharedPrefFile = "appSharedFile"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,7 +44,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         gSignIn.setOnClickListener{
-            Log.i(TAG, "Called Gsign in")
+            Log.i(TAG, "Called Google sign in")
             signIn()
         }
 
@@ -92,7 +94,23 @@ class MainActivity : AppCompatActivity() {
                     Log.i(TAG, "Successful sign in: $task")
                     val user = auth.currentUser
                     val email = user?.email
+                    val googleUserName = user?.displayName
+                    val googlePhotoUrl = user?.photoUrl.toString()
+
+                    //Getting the shared preferences file -- A file that can contain data which will be accessible over all activities, it accepts in the form of key value pairs
+                    val sharedPreferences: SharedPreferences = this.getSharedPreferences(
+                        sharedPrefFile, Context.MODE_PRIVATE)
+                    val editor: SharedPreferences.Editor = sharedPreferences.edit()
+
+                    editor.putString("email", email)
+                    editor.putString("username", googleUserName)
+                    editor.putString("photoUrl", googlePhotoUrl)
+                    editor.apply()
+                    editor.commit()
                     Log.i(TAG, "User is: $email")
+
+                    val intent = Intent(this, UserPage::class.java)
+                    startActivity(intent)
                 } else {
                     Snackbar.make(activity_main, "Authentication failed", Snackbar.LENGTH_LONG).show()
                     Log.w(TAG, "signInWithCredential:failure", task.exception)
