@@ -9,8 +9,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".StatusPage"
-            android:exported="true"/>
+        <activity android:name=".NgoItems"></activity>
+        <activity android:name=".DonatedItemLists" />
+        <activity android:name=".NgoPage" />
+        <activity
+            android:name=".StatusPage"
+            android:exported="true" />
         <activity
             android:name=".Donation"
             android:exported="true" />

@@ -33,12 +33,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        main_sign_up.setOnClickListener {
-            val intent = Intent(this, SignUp :: class.java)
-            startActivity(intent)
-        }
+//        main_sign_up.setOnClickListener {
+//            val intent = Intent(this, SignUp :: class.java)
+//            startActivity(intent)
+//        }
 
-        main_sign_in.setOnClickListener {
+        ngo_sign_in.setOnClickListener {
             val intent = Intent(this, Login::class.java)
             startActivity(intent)
         }

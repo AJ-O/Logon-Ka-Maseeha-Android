@@ -46,7 +46,7 @@ class Login : AppCompatActivity() {
 
         Log.i(TAG, "$email $pass")
 
-        val docRef = db.collection("Users").document(email)
+        val docRef = db.collection("NGO").document("testNgoArea@gmail.com") //Replace with ngo email
 
         docRef.get()
             .addOnSuccessListener { doc ->
@@ -70,9 +70,10 @@ class Login : AppCompatActivity() {
                         editor.apply()
                         editor.commit()
 
-                        val intent = Intent(this, UserPage::class.java)
-                        intent.putExtra("email", email)
-                        Log.i(TAG, "${intent.extras} $email")
+                            //Change intent
+                        val intent = Intent(this, NgoPage::class.java)
+                        //intent.putExtra("email", email)
+                        //Log.i(TAG, "${intent.extras} $email")
                         startActivity(intent)
                     } else {
                         Toast.makeText(this, "Kindly enter the right Password", Toast.LENGTH_LONG).show()
@@ -80,8 +81,8 @@ class Login : AppCompatActivity() {
 
 
                 } else {
-                    Log.i(TAG, "User does not exists, kindly register first")
-                    val intent = Intent(this, SignUp::class.java)
+                    Toast.makeText(this, "NGO does not exist, kindly contact to get your credentials", Toast.LENGTH_LONG).show()
+                    val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
                 }
             }

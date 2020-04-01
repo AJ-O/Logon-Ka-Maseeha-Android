@@ -17,26 +17,16 @@
         tools:context=".MainActivity">
 
         <Button
-            android:id="@+id/main_sign_up"
-            android:layout_width="122dp"
-            android:layout_height="wrap_content"
+            android:id="@+id/ngo_sign_in"
+            android:layout_width="115dp"
+            android:layout_height="62dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginStart="117dp"
-            android:layout_marginTop="65dp"
-            android:text="Sign Up" />
-
-        <Button
-            android:id="@+id/main_sign_in"
-            android:layout_width="122dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_centerInParent="true"
-            android:layout_marginEnd="140dp"
-            android:layout_marginBottom="446dp"
-            android:text="Sign In" />
+            android:layout_marginStart="127dp"
+            android:layout_marginTop="240dp"
+            android:text="NGO Sign In"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <com.google.android.gms.common.SignInButton
             android:id="@+id/gSignIn"
