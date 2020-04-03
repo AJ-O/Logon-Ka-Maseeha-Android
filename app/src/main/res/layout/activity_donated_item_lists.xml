@@ -6,4 +6,11 @@
     android:layout_height="match_parent"
     tools:context=".DonatedItemLists">
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewItems"
+        android:layout_width="409dp"
+        android:layout_height="729dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="1dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

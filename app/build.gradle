@@ -46,4 +46,5 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-storage:6.2.1'
     implementation 'com.squareup.picasso:picasso:2.71828'
     kapt 'com.github.bumptech.glide:compiler:4.11.0'
+    implementation 'androidx.gridlayout:gridlayout:1.0.0'
 }

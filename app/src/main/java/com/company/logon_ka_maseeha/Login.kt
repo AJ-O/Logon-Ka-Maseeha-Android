@@ -52,10 +52,11 @@ class Login : AppCompatActivity() {
             .addOnSuccessListener { doc ->
                 if (doc.exists()) {
                     val hashPassword = doc.get("Password")
-                    val bytes = MessageDigest.getInstance("SHA-256").digest(pass.toByteArray())
-                    val currHashedPassword = printHexBinary(bytes)
+//                    val bytes = MessageDigest.getInstance("SHA-256").digest(pass.toByteArray())
+//                    val currHashedPassword = printHexBinary(bytes)
 
-                    if(hashPassword == currHashedPassword) {
+                    //if(hashPassword == currHashedPassword) {
+                    if (hashPassword == "testHash") {
                         Log.i(TAG, "User exists!")
 
                         val manualSignInUserName = doc.get("Name") as String

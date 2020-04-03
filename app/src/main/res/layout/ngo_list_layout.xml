@@ -18,8 +18,8 @@
                 android:layout_height="200dp"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
-                android:layout_marginTop="23dp"
-                android:layout_marginEnd="238dp"
+                android:layout_marginTop="42dp"
+                android:layout_marginEnd="246dp"
                 app:srcCompat="@drawable/ic_launcher_background" />
 
             <TextView
@@ -71,6 +71,16 @@
                 android:layout_marginTop="212dp"
                 android:layout_marginEnd="79dp"
                 android:text="TextView" />
+
+            <Button
+                android:id="@+id/item_status_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="241dp"
+                android:layout_marginEnd="80dp"
+                android:text="Item Picked UP" />
         </RelativeLayout>
     </androidx.cardview.widget.CardView>
 </LinearLayout>

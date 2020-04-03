@@ -145,7 +145,7 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         )
 
         Log.i(TAG, "$itemDetails")
-
+        
         val itemDonatedRef = db.collection("Items Donated")
         itemDonatedRef.add(itemDetails).addOnSuccessListener {
             documentRef ->  Log.i(TAG, "Data added to items, id: " + documentRef.id)
