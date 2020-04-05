@@ -8,8 +8,8 @@
 
 
     <RelativeLayout
-        android:layout_width="409dp"
-        android:layout_height="729dp"
+        android:layout_width="429dp"
+        android:layout_height="610dp"
         tools:layout_editor_absoluteX="1dp"
         tools:layout_editor_absoluteY="1dp">
 
@@ -46,11 +46,11 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewNgo"
-            android:layout_width="408dp"
-            android:layout_height="581dp"
+            android:layout_width="398dp"
+            android:layout_height="460dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:layout_marginStart="1dp"
-            android:layout_marginTop="86dp" />
+            android:layout_marginStart="11dp"
+            android:layout_marginTop="95dp" />
     </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

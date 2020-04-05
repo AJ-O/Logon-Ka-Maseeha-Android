@@ -78,7 +78,9 @@ class DonatedItemLists : AppCompatActivity() {
                                         status as String,
                                         mno as Long,
                                         donatedDate,
-                                        bmp
+                                        bmp,
+                                        doc.id,
+                                        ngoEmail?:""
                                     )
                                 )
                                 val adapter = NgoItemCustomAdapter(itemList)

@@ -145,19 +145,18 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         )
 
         Log.i(TAG, "$itemDetails")
-        
+
         val itemDonatedRef = db.collection("Items Donated")
-        itemDonatedRef.add(itemDetails).addOnSuccessListener {
-            documentRef ->  Log.i(TAG, "Data added to items, id: " + documentRef.id)
-        }.addOnFailureListener{
-            exception -> Log.i(TAG, "Error adding to items donated--", exception)
-        }
 
         val docRef = email?.let { db.collection("Users").document(it).collection("Donated Items") }
         docRef?.add(itemDetails)?.addOnSuccessListener { documentRef -> Log.i(TAG, documentRef.id)
-            val intent = Intent(this, UserPage::class.java)
-            intent.putExtra("email", email)
-            startActivity(intent)
+            itemDonatedRef.document(documentRef.id).set(itemDetails).addOnSuccessListener {
+                val intent = Intent(this, UserPage::class.java)
+                //intent.putExtra("email", email)
+                startActivity(intent)
+            }.addOnFailureListener{
+                exception -> Log.i(TAG, "error inserting in Items donated collection: ", exception)
+            }
         }?.addOnFailureListener{
                 exception -> Log.i(TAG, "Error", exception)
         }

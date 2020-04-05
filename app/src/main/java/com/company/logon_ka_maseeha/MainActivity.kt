@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -17,6 +18,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 //import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -37,6 +40,23 @@ class MainActivity : AppCompatActivity() {
 //            val intent = Intent(this, SignUp :: class.java)
 //            startActivity(intent)
 //        }
+        val user = FirebaseAuth.getInstance().currentUser
+        if(user != null) {
+            Log.i(TAG, "User Exists!")
+            val email = user.email
+            val photoUrl = user.photoUrl.toString()
+            val name = user.displayName
+            if (email != null) {
+                if (name != null) {
+                    setSharedPreferences(email, photoUrl, name)
+                }
+            }
+            Toast.makeText(this, "User exists! Yay!", Toast.LENGTH_LONG).show()
+            val intent = Intent(this, UserPage::class.java)
+            startActivity(intent)
+        } else {
+            Log.i(TAG, "User does not exist!")
+        }
 
         ngo_sign_in.setOnClickListener {
             val intent = Intent(this, Login::class.java)
@@ -49,7 +69,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestIdToken(getString(R.string.default_web_client_id))//(getString(R.string.default_web_client_id))
             .requestEmail()
             .requestProfile()
             .build()
@@ -97,24 +117,39 @@ class MainActivity : AppCompatActivity() {
                     val googleUserName = user?.displayName
                     val googlePhotoUrl = user?.photoUrl.toString()
 
-                    //Getting the shared preferences file -- A file that can contain data which will be accessible over all activities, it accepts in the form of key value pairs
-                    val sharedPreferences: SharedPreferences = this.getSharedPreferences(
-                        sharedPrefFile, Context.MODE_PRIVATE)
-                    val editor: SharedPreferences.Editor = sharedPreferences.edit()
+                    if (email != null) {
+                        if (googleUserName != null) {
+                            setSharedPreferences(email, googlePhotoUrl, googleUserName)
+                        }
+                    }
 
-                    editor.putString("email", email)
-                    editor.putString("username", googleUserName)
-                    editor.putString("photoUrl", googlePhotoUrl)
-                    editor.apply()
-                    editor.commit()
-                    Log.i(TAG, "User is: $email")
-
-                    val intent = Intent(this, UserPage::class.java)
-                    startActivity(intent)
+                    val db = Firebase.firestore
+                    if (email != null) {
+                        val userDetails = hashMapOf(
+                            "Name" to googleUserName,
+                            "PhotoUrl" to googlePhotoUrl
+                        )
+                        db.collection("Users").document(email).set(userDetails).addOnSuccessListener {
+                            val intent = Intent(this, UserPage::class.java)
+                            startActivity(intent)
+                        }.addOnFailureListener{
+                            exception -> Log.w(TAG, "Error adding to database!", exception)
+                        }
+                    }
                 } else {
                     Snackbar.make(activity_main, "Authentication failed", Snackbar.LENGTH_LONG).show()
                     Log.w(TAG, "signInWithCredential:failure", task.exception)
                 }
             }
+    }
+
+    private fun setSharedPreferences(gEmail: String, gPhotoUrl: String, gName: String) {
+        val sharedPreferences: SharedPreferences = this.getSharedPreferences(sharedPrefFile, Context.MODE_PRIVATE)
+        val editor: SharedPreferences.Editor = sharedPreferences.edit()
+        editor.putString("email", gEmail)
+        editor.putString("PhotoUrl", gPhotoUrl)
+        editor.putString("Name", gName)
+        editor.apply()
+        editor.commit()
     }
 }

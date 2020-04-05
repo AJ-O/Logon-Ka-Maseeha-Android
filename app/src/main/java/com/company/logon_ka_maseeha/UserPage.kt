@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.squareup.picasso.Picasso
@@ -27,11 +28,11 @@ class UserPage : AppCompatActivity() {
         setContentView(R.layout.activity_user_page)
 
         val sharedPreferences: SharedPreferences = getSharedPreferences("appSharedFile", Context.MODE_PRIVATE)
-        val email = "ashishleiot@gmail.com"//sharedPreferences.getString("email", "")
+        val email = sharedPreferences.getString("email", "")
         val photoUrl = sharedPreferences.getString("photoUrl", "")
         val googleUserName = sharedPreferences.getString("username", "")
 
-//        Picasso.get().load(photoUrl).into(userDP)
+        Picasso.get().load(photoUrl).into(userDP)
         val userNameEle = userName as TextView
         userNameEle.text = googleUserName
         Log.i(TAG, "shared pref: $email")
@@ -53,18 +54,19 @@ class UserPage : AppCompatActivity() {
 
         val storage = Firebase.storage
         val storageRef = storage.reference
+        val db = Firebase.firestore
+        val lists = ArrayList<ListItem>()
+        val oneMb: Long = 1024 * 1024 //Max size of image
 
         Log.i(StatusPage.TAG, email)
 
-        val docRef = email.let { StatusPage.db.collection("Users").document(it).collection("Donated Items") }
-        val lists = ArrayList<ListItem>()
-        val oneMb: Long = 1024 * 1024 //Max size of image
-        docRef.get().addOnSuccessListener { docs ->
+        val docRef = email?.let { db.collection("Users").document(it).collection("Donated Items") }
+        docRef?.get()?.addOnSuccessListener { docs ->
             if (docs == null) {
                 Log.i(StatusPage.TAG, "No items donated!")
                 Toast.makeText(this, "No items donated", Toast.LENGTH_LONG).show()
-                val intent = Intent(this, UserPage::class.java)
-                startActivity(intent)
+//                val intent = Intent(this, UserPage::class.java)
+//                startActivity(intent)
             } else {
                 for (doc in docs) {
                     val productType = doc.get("Type")
@@ -84,7 +86,8 @@ class UserPage : AppCompatActivity() {
                                 mno as Long,
                                 donatedDate,
                                 bmp,
-                                doc.id
+                                doc.id,
+                                email
                             )
                         )
                         val adapter = CustomAdapter(lists)
@@ -95,7 +98,7 @@ class UserPage : AppCompatActivity() {
 
                 }
             }
-        }.addOnFailureListener { exception -> Log.i(StatusPage.TAG, "exception", exception)
+        }?.addOnFailureListener { exception -> Log.i(StatusPage.TAG, "exception", exception)
         }
     }
 }

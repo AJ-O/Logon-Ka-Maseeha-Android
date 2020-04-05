@@ -31,9 +31,9 @@ class NgoPage : AppCompatActivity() {
         val sharedPreferences: SharedPreferences = getSharedPreferences("appSharedFile", Context.MODE_PRIVATE)
         val globalNgoName = sharedPreferences.getString("ngoName", "")
 
-        val ngoNameEle = ngoName as TextView
-        ngoNameEle.text = globalNgoName
+        ngoName.text = globalNgoName
 
+        //Remove this
         ngoItems.setOnClickListener{
             val intent = Intent(this, NgoItems::class.java)
             startActivity(intent)
@@ -92,7 +92,9 @@ class NgoPage : AppCompatActivity() {
                                         status as String,
                                         mno as Long,
                                         donatedDate,
-                                        bmp
+                                        bmp,
+                                        doc.id,
+                                        ngoEmail
                                     )
                                 )
                                 val adapter = NgoItemCustomAdapter(itemList)

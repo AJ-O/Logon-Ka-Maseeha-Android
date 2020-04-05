@@ -1,5 +1,7 @@
 package com.company.logon_ka_maseeha
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.util.Log
 import android.view.LayoutInflater
@@ -17,6 +19,7 @@ class CustomAdapter(private val listItems: ArrayList<ListItem>) : RecyclerView.A
     companion object {
         val db = Firebase.firestore
     }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomAdapter.ViewHolder {
         val v = LayoutInflater.from(parent.context).inflate(R.layout.list_layout, parent, false)
         return ViewHolder(v)
@@ -39,20 +42,26 @@ class CustomAdapter(private val listItems: ArrayList<ListItem>) : RecyclerView.A
             val userMobileNo = itemView.findViewById(R.id.donated_item_mno) as TextView
             val donatedImg = itemView.findViewById(R.id.donated_image) as ImageView
             val rmItem = itemView.findViewById(R.id.remove_item) as Button
-            val delItemRef = listItem.fbItemUserRef
-            rmItem.setOnClickListener(remove(delItemRef))
 
             donatedImg.setImageBitmap(Bitmap.createScaledBitmap(listItem.bmp, 200, 200, false))
             productType.text = listItem.productType
             productStatus.text = listItem.productStatus
             donatedDate.text = listItem.donateDate.toString()
             userMobileNo.text = listItem.mobileNo.toString()
+            val delItemRef = listItem.fbItemUserRef
+            val email = listItem.email
+            rmItem.setOnClickListener(remove(delItemRef, email))
         }
 
-        private fun remove(delId: String): (View) -> Unit = {
+        private fun remove(delId: String, email: String): (View) -> Unit = {
             layoutPosition.also {
-                db.collection("Users/ashishleiot@gmail.com/Donated Items").document(delId).delete().addOnSuccessListener {
+                db.collection("Users/$email/Donated Items").document(delId).delete().addOnSuccessListener {
                     Log.i(TAG, "Item Deleted")
+                    db.collection("Items Donated").document(delId).delete().addOnSuccessListener {
+                        Log.i(TAG, "Item Deleted from Items Donated collection")
+                    }.addOnFailureListener{
+                        Log.i(TAG, "Failed to delete in Items donated collection")
+                    }
                 }.addOnFailureListener {
                     exception -> Log.w(TAG, "Error -- ", exception)
                 }
