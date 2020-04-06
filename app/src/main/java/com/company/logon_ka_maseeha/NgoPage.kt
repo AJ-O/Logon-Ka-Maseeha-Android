@@ -7,7 +7,6 @@ import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -52,7 +51,7 @@ class NgoPage : AppCompatActivity() {
         //val sharedPreferences: SharedPreferences = getSharedPreferences("appSharedFile", Context.MODE_PRIVATE)
         val ngoEmail = sharedPreferences.getString("ngoEmail", "")?:""
 
-        val docRef = db.collection("NGO").document("testNgoArea@gmail.com").collection("Items_List")
+        val docRef = db.collection("NGO").document(ngoEmail).collection("Selected Items")
         val itemList = ArrayList<NgoItemDisplayData>()
         val oneMb: Long = 1024 * 1024
 
@@ -80,6 +79,7 @@ class NgoPage : AppCompatActivity() {
                                 doc.get("Timestamp") as com.google.firebase.Timestamp
                             val imageName = doc.get("ImageName")
                             val userAddress = doc.get("Address")
+                            val userEmail = doc.get("Uploaded By")
                             val donatedDate = donatedTimeString.toDate()
 
                             val imageRef = storageRef.child(imageName as String)
@@ -94,7 +94,9 @@ class NgoPage : AppCompatActivity() {
                                         donatedDate,
                                         bmp,
                                         doc.id,
-                                        ngoEmail
+                                        ngoEmail,
+                                        userEmail as String,
+                                        imageName
                                     )
                                 )
                                 val adapter = NgoItemCustomAdapter(itemList)

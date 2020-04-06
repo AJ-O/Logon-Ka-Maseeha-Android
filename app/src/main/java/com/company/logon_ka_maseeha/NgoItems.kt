@@ -63,7 +63,7 @@ class NgoItems : AppCompatActivity() {
                             val imageName = doc.get("ImageName")
                             val userAddress = doc.get("Address")
                             val donatedDate = donatedTimeString.toDate()
-
+                            val userEmail = "ashishleiot@gmail.com"
                             val imageRef = storageRef.child(imageName as String)
                             imageRef.getBytes(oneMb).addOnSuccessListener {
                                 val bmp = BitmapFactory.decodeByteArray(it, 0, it.size)
@@ -76,10 +76,12 @@ class NgoItems : AppCompatActivity() {
                                         donatedDate,
                                         bmp,
                                         doc.id,
-                                        ngoEmail
+                                        ngoEmail,
+                                        userEmail,
+                                        imageName
                                     )
                                 )
-                                val adapter = NgoItemCustomAdapter(itemList)
+                                val adapter = DonatedItemCustomAdapter(itemList)
                                 recyclerView.adapter = adapter
                             }.addOnFailureListener { exception ->
                                 Log.i(TAG, exception.toString())
@@ -90,7 +92,7 @@ class NgoItems : AppCompatActivity() {
             }.addOnFailureListener{
                 exception -> Log.i(TAG, "Error: ", exception)
             }
-        val adapter = NgoItemCustomAdapter(itemList)
+        val adapter = DonatedItemCustomAdapter(itemList)
         recyclerView.adapter = adapter
     }
 }

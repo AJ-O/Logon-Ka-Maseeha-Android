@@ -29,22 +29,22 @@ class Login : AppCompatActivity() {
 
         login.setOnClickListener {
             val ele1 = sign_in_emailId as EditText
-            val email = ele1.text.toString()
+            val ngoEmail = ele1.text.toString()
 
             val ele2 = sign_in_password as EditText
             val pass = ele2.text.toString()
 
-            if(email.isBlank() or pass.isBlank()) {
+            if(ngoEmail.isBlank() or pass.isBlank()) {
                 Toast.makeText(this, "Kindly enter all the required data", Toast.LENGTH_LONG).show()
             } else {
-                getData(email, pass)
+                getData(ngoEmail, pass)
             }
         }
     }
 
-    private fun getData(email: String, pass: String) {
+    private fun getData(ngoEmail: String, pass: String) {
 
-        Log.i(TAG, "$email $pass")
+        Log.i(TAG, "$ngoEmail $pass")
 
         val docRef = db.collection("NGO").document("testNgoArea@gmail.com") //Replace with ngo email
 
@@ -59,13 +59,13 @@ class Login : AppCompatActivity() {
                     if (hashPassword == "testHash") {
                         Log.i(TAG, "User exists!")
 
-                        val manualSignInUserName = doc.get("Name") as String
+                        val ngoName = doc.get("Name") as String
 
                         val sharedPreferences: SharedPreferences = this.getSharedPreferences(sharedPrefFile, Context.MODE_PRIVATE)
                         val editor:SharedPreferences.Editor = sharedPreferences.edit()
 
-                        editor.putString("email", email)
-                        editor.putString("username", manualSignInUserName)
+                        editor.putString("ngoEmail", ngoEmail)
+                        editor.putString("ngoName", ngoName)
                         editor.putString("photoUrl", "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.spacetelescope.org%2Fimages%2Fheic1808a%2F&psig=AOvVaw3wRutboX88FRSahHazed3S&ust=1585767636711000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCICu4vyyxegCFQAAAAAdAAAAABAQ")
 
                         editor.apply()

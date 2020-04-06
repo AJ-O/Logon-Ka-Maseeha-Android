@@ -141,7 +141,8 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             "ImageName" to fileName,
             "DownloadUrl" to downloadUri,
             "Timestamp" to time,
-            "Status" to "Awaiting Response"
+            "Status" to "Awaiting Response",
+            "Uploaded By" to email
         )
 
         Log.i(TAG, "$itemDetails")

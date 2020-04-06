@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
-import kotlinx.android.synthetic.main.ngo_list_layout.*
 
 class DonatedItemLists : AppCompatActivity() {
 
@@ -66,8 +65,9 @@ class DonatedItemLists : AppCompatActivity() {
                                 doc.get("Timestamp") as com.google.firebase.Timestamp
                             val imageName = doc.get("ImageName")
                             val userAddress = doc.get("Address")
-                            val donatedDate = donatedTimeString.toDate()
+                            val userEmail = doc.get("Uploaded By")
 
+                            val donatedDate = donatedTimeString.toDate()
                             val imageRef = storageRef.child(imageName as String)
                             imageRef.getBytes(oneMb).addOnSuccessListener {
                                 val bmp = BitmapFactory.decodeByteArray(it, 0, it.size)
@@ -80,10 +80,12 @@ class DonatedItemLists : AppCompatActivity() {
                                         donatedDate,
                                         bmp,
                                         doc.id,
-                                        ngoEmail?:""
+                                        ngoEmail?:"",
+                                        userEmail as String,
+                                        imageName
                                     )
                                 )
-                                val adapter = NgoItemCustomAdapter(itemList)
+                                val adapter = DonatedItemCustomAdapter(itemList)
                                 recyclerView.adapter = adapter
                             }.addOnFailureListener { exception ->
                                 Log.w(TAG, "Error!", exception)
@@ -94,7 +96,7 @@ class DonatedItemLists : AppCompatActivity() {
             }.addOnFailureListener{
                 exception -> Log.w(TAG, "Error, ", exception)
             }
-        val adapter = NgoItemCustomAdapter(itemList)
+        val adapter = DonatedItemCustomAdapter(itemList)
         recyclerView.adapter = adapter
     }
 }
