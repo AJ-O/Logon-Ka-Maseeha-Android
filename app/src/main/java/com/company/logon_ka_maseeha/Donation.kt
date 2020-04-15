@@ -8,11 +8,16 @@ import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Looper
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.annotation.RequiresApi
+import com.company.logon_ka_maseeha.services.ServerRequests
+import com.company.logon_ka_maseeha.services.ServiceBuilder
+import com.company.logon_ka_maseeha.services.mailData
+import com.google.android.gms.location.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.ktx.firestore
@@ -21,29 +26,78 @@ import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import com.google.firebase.storage.ktx.storageMetadata
 import kotlinx.android.synthetic.main.activity_donation.*
+import retrofit2.Callback
+import retrofit2.Call
+import retrofit2.Response
 import java.net.FileNameMap
 import java.sql.Timestamp
 import java.time.Instant
 import java.time.format.DateTimeFormatter
+import kotlin.math.acos
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.properties.Delegates
 
 class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     companion object {
         private const val TAG = "DocSnippets"
+        private lateinit var fusedLocationClient: FusedLocationProviderClient
         lateinit var item: String
-        const val PICK_IMAGE_REQUEST = 111
-        val storage = Firebase.storage
         lateinit var filePath: Uri
         lateinit var imgView: ImageView
         lateinit var downloadUri: String
         lateinit var fileName: String
+        const val PICK_IMAGE_REQUEST = 111
+        val storage = Firebase.storage
         val db = Firebase.firestore
+        var userLat = 0.0
+        var userLong = 0.0
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_donation)
-
+        when {
+            PermissionUtils.isAccessFineLocationGranted(this) -> {
+                when {
+                    PermissionUtils.isLocationEnabled(this) -> {
+                            //setUpLocationListener()
+                        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this) //Works only if last location is given or else null
+                        fusedLocationClient.lastLocation.addOnSuccessListener {
+                            Log.i(TAG, "{${it.longitude}, {${it.latitude}}")
+                            userLat = it.latitude
+                            userLong = it.longitude
+                        }.addOnFailureListener { exception ->
+                            Log.i(TAG, exception.toString())
+                        }
+//                            val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+//                            val locationRequest = LocationRequest().setInterval(2000).setFastestInterval(2000)
+//                                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+//                            fusedLocationProviderClient.requestLocationUpdates(locationRequest, object: LocationCallback() {
+//                                override fun onLocationResult(locationResult: LocationResult?) {
+//                                    super.onLocationResult(locationResult)
+//
+//                                    if (locationResult != null) {
+//                                        for(location in locationResult.locations) {
+//                                            Log.i(TAG, "Lat: ${location.latitude}")
+//                                            Log.i(TAG, "Long: ${location.longitude}")
+//                                        }
+//                                    }
+//                                }
+//                            },
+//                                Looper.myLooper())
+                            //Log.i(MainActivity.TAG,"Permission given")
+                    } else ->  {
+                    PermissionUtils.showGPSNotEnabledDialog(this)
+                }
+                }
+            }  else -> {
+                PermissionUtils.requestAccessFineLocationPermission(this,
+                MainActivity.LOCATION_PERMISSION_REQUEST_CODE
+                ) //Change the requestId
+            }
+        }
 //        val mAuth = FirebaseAuth.getInstance()
 //        val firebaseUser = mAuth.currentUser
 //        Log.i(TAG, "User is: $firebaseUser")
@@ -85,7 +139,7 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         val uploadTask = imageRef?.putFile(filePath)
 
-        val urlTask = uploadTask?.continueWithTask { task ->
+        uploadTask?.continueWithTask { task ->
             if (!task.isSuccessful) {
                 task.exception?.let {
                     throw it
@@ -109,7 +163,7 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         return fileName
     }
 
-    protected override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         if(requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.data != null) {
@@ -151,10 +205,39 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         val docRef = email?.let { db.collection("Users").document(it).collection("Donated Items") }
         docRef?.add(itemDetails)?.addOnSuccessListener { documentRef -> Log.i(TAG, documentRef.id)
-            itemDonatedRef.document(documentRef.id).set(itemDetails).addOnSuccessListener {
-                val intent = Intent(this, UserPage::class.java)
-                //intent.putExtra("email", email)
-                startActivity(intent)
+            itemDonatedRef.document(documentRef.id).set(itemDetails).addOnSuccessListener { //TODO - calculate distance, send email, post request, on success, notify
+                val ngoDb = Firebase.firestore
+                var ngoDistancesList: MutableList<Double> = mutableListOf()
+
+                val docRef = ngoDb.collection("NGO").get().addOnSuccessListener {docs ->
+                    for(doc in docs){
+                        val ngoCoords = doc.get("Coordinates") as ArrayList<*>
+                        val ngoLat = ngoCoords[0]
+                        val ngoLong = ngoCoords[1]
+                        val dist = calcDistanceBetweenUserAndNgo(ngoLat as Double,
+                            ngoLong as Double, userLat, userLong)
+                        ngoDistancesList.add(dist)
+                        Log.i(UserPage.TAG, "$dist")
+                    }
+                }
+                //Initialize service
+                val mailService: ServerRequests = ServiceBuilder.buildService(ServerRequests::class.java)
+                val requestCall: Call<String> = mailService.sendMail(ngoDistancesList)
+                //TODO Check for values expected for return vs sending
+                requestCall.enqueue(object: Callback<String>{
+                    override fun onResponse(call: Call<String>, response: Response<String>){
+                        if(response.isSuccessful) {
+                            Log.i(TAG, "Sent Data!")
+                        }
+                    }
+                    override fun onFailure(call: Call<String>, t: Throwable) {
+                        Log.i(TAG, "${t.message}")
+                    }
+                })
+
+//                val intent = Intent(this, UserPage::class.java)
+//                //intent.putExtra("email", email)
+//                startActivity(intent)
             }.addOnFailureListener{
                 exception -> Log.i(TAG, "error inserting in Items donated collection: ", exception)
             }
@@ -168,6 +251,28 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     }
 
     override fun onNothingSelected(parent: AdapterView<*>?) {
-        TODO("Not yet implemented")
+        Toast.makeText(this, "Kindly select the type of the item", Toast.LENGTH_LONG).show()
     }
+
+    private fun calcDistanceBetweenUserAndNgo(ngoLat: Double, ngoLong: Double, userLat: Double, userLong: Double) : Double{
+        val theta: Double = ngoLong - userLong
+        var dist = (sin(deg2rad(ngoLat))
+                * sin(deg2rad(userLat))
+                + (cos(deg2rad(ngoLat))
+                * cos(deg2rad(userLat))
+                * cos(deg2rad(theta))))
+        dist = acos(dist)
+        dist = rad2deg(dist)
+        dist *= 60 * 1.1515
+        return dist
+    }
+
+    private fun deg2rad(deg: Double): Double {
+        return deg * Math.PI / 180.0
+    }
+
+    private fun rad2deg(rad: Double): Double {
+        return rad * 180.0 / Math.PI
+    }
+
 }

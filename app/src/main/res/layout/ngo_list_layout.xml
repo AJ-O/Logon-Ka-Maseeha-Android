@@ -14,12 +14,12 @@
 
             <ImageView
                 android:id="@+id/accepted_item_img"
-                android:layout_width="150dp"
-                android:layout_height="200dp"
+                android:layout_width="wrap_content"
+                android:layout_height="88dp"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:layout_marginTop="42dp"
-                android:layout_marginEnd="246dp"
+                android:layout_marginEnd="288dp"
                 app:srcCompat="@drawable/ic_launcher_background" />
 
             <TextView

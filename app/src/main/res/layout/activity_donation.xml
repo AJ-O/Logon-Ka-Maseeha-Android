@@ -7,8 +7,8 @@
     tools:context=".Donation">
 
     <RelativeLayout
-        android:layout_width="395dp"
-        android:layout_height="723dp"
+        android:layout_width="396dp"
+        android:layout_height="595dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:layout_editor_absoluteY="3dp">
@@ -56,8 +56,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginEnd="131dp"
-            android:layout_marginBottom="227dp"
+            android:layout_marginEnd="138dp"
+            android:layout_marginBottom="151dp"
             android:text="Get coordinates"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -68,8 +68,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginStart="153dp"
-            android:layout_marginBottom="157dp"
+            android:layout_marginStart="140dp"
+            android:layout_marginBottom="52dp"
             android:text="Donate"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -103,6 +103,20 @@
             android:layout_marginBottom="101dp">
 
         </com.google.android.material.textfield.TextInputLayout>
+
+        <ScrollView
+            android:layout_width="395dp"
+            android:layout_height="592dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </ScrollView>
 
     </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

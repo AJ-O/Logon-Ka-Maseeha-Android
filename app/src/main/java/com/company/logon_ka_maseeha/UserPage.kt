@@ -16,6 +16,9 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_user_page.*
+import kotlin.math.acos
+import kotlin.math.cos
+import kotlin.math.sin
 
 class UserPage : AppCompatActivity() {
 
@@ -43,11 +46,28 @@ class UserPage : AppCompatActivity() {
             startActivity(intent)
         }
 
-//        status_btn.setOnClickListener {
+        status_btn.setOnClickListener {
 //            val intent = Intent(this, StatusPage::class.java)
 //            intent.putExtra("email", email)
 //            startActivity(intent)
-//        }
+
+            val db = Firebase.firestore
+            //Google's location
+            val userLat = 37.421998
+            val userLong = -122.084000
+
+            val docRef = db.collection("NGO").get().addOnSuccessListener {docs ->
+                for(doc in docs){
+                    val ngoCoords = doc.get("Coordinates") as ArrayList<*>
+                    val ngoLat = ngoCoords[0]
+                    val ngoLong = ngoCoords[1]
+                    val dist = calcDistanceBetweenUserAndNgo(ngoLat as Double,
+                        ngoLong as Double, userLat, userLong)
+                    Log.i(TAG, "$dist")
+                }
+            }
+
+        }
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
@@ -100,5 +120,26 @@ class UserPage : AppCompatActivity() {
             }
         }?.addOnFailureListener { exception -> Log.i(StatusPage.TAG, "exception", exception)
         }
+    }
+
+    private fun calcDistanceBetweenUserAndNgo(ngoLat: Double, ngoLong: Double, userLat: Double, userLong: Double): Double{
+        val theta: Double = ngoLong - userLong
+        var dist = (sin(deg2rad(ngoLat))
+                * sin(deg2rad(userLat))
+                + (cos(deg2rad(ngoLat))
+                * cos(deg2rad(userLat))
+                * cos(deg2rad(theta))))
+        dist = acos(dist)
+        dist = rad2deg(dist)
+        dist *= 60 * 1.1515
+        return dist
+    }
+
+    private fun deg2rad(deg: Double): Double {
+        return deg * Math.PI / 180.0
+    }
+
+    private fun rad2deg(rad: Double): Double {
+        return rad * 180.0 / Math.PI
     }
 }

@@ -99,6 +99,7 @@ class NgoPage : AppCompatActivity() {
                                         imageName
                                     )
                                 )
+
                                 val adapter = NgoItemCustomAdapter(itemList)
                                 recyclerView.adapter = adapter
                             }.addOnFailureListener { exception ->

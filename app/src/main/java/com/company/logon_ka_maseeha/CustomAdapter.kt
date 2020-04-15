@@ -50,7 +50,12 @@ class CustomAdapter(private val listItems: ArrayList<ListItem>) : RecyclerView.A
             userMobileNo.text = listItem.mobileNo.toString()
             val delItemRef = listItem.fbItemUserRef
             val email = listItem.email
-            rmItem.setOnClickListener(remove(delItemRef, email))
+
+            if(listItem.productStatus == "Awaiting Response") {
+                rmItem.setOnClickListener(remove(delItemRef, email))
+            } else {
+                rmItem.visibility = View.GONE
+            }
         }
 
         private fun remove(delId: String, email: String): (View) -> Unit = {

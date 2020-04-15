@@ -1,26 +1,38 @@
+//Check for permissions
+//put things in onStart?
+//Mail?
+//implement onResume method, for freshly loading changes in itemlist -- ngo page and user page
 package com.company.logon_ka_maseeha
 
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import com.company.logon_ka_maseeha.services.*
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.material.snackbar.Snackbar
+import com.google.api.ServiceOrBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 //import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.activity_main.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
     
@@ -30,6 +42,7 @@ class MainActivity : AppCompatActivity() {
         private lateinit var auth: FirebaseAuth
         private lateinit var googleSignInClient: GoogleSignInClient
         private const val sharedPrefFile = "appSharedFile"
+        val LOCATION_PERMISSION_REQUEST_CODE = 1
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,6 +53,11 @@ class MainActivity : AppCompatActivity() {
 //            val intent = Intent(this, SignUp :: class.java)
 //            startActivity(intent)
 //        }
+
+        button.setOnClickListener {
+            callTest()
+        }
+
         val user = FirebaseAuth.getInstance().currentUser
         if(user != null) {
             Log.i(TAG, "User Exists!")
@@ -52,8 +70,8 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             Toast.makeText(this, "User exists! Yay!", Toast.LENGTH_LONG).show()
-            val intent = Intent(this, UserPage::class.java)
-            startActivity(intent)
+//            val intent = Intent(this, UserPage::class.java)
+//            startActivity(intent)
         } else {
             Log.i(TAG, "User does not exist!")
         }
@@ -69,7 +87,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))//(getString(R.string.default_web_client_id))
+            .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .requestProfile()
             .build()
@@ -95,12 +113,6 @@ class MainActivity : AppCompatActivity() {
                 Log.w(TAG, "G Sign in failed!", e)
             }
         }
-    }
-
-    public override fun onStart() {
-        super.onStart()
-        val currentUser = auth.currentUser
-        Log.i(TAG, "$currentUser")
     }
 
     private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount) {
@@ -147,9 +159,91 @@ class MainActivity : AppCompatActivity() {
         val sharedPreferences: SharedPreferences = this.getSharedPreferences(sharedPrefFile, Context.MODE_PRIVATE)
         val editor: SharedPreferences.Editor = sharedPreferences.edit()
         editor.putString("email", gEmail)
-        editor.putString("PhotoUrl", gPhotoUrl)
-        editor.putString("Name", gName)
+        editor.putString("photoUrl", gPhotoUrl)
+        editor.putString("username", gName)
         editor.apply()
         editor.commit()
+    }
+
+    public override fun onStart() {
+        super.onStart()
+        val currentUser = auth.currentUser
+        Log.i(TAG, "$currentUser")
+        when {
+            PermissionUtils.isAccessFineLocationGranted(this) -> {
+                when {
+                    PermissionUtils.isLocationEnabled(this) -> {
+                        //setUpLocationListener()
+                        Log.i(TAG,"Permission given")
+                    } else ->  {
+                    PermissionUtils.showGPSNotEnabledDialog(this)
+                }
+                }
+            }   else -> {
+                PermissionUtils.requestAccessFineLocationPermission(this, LOCATION_PERMISSION_REQUEST_CODE) //Change the requestId
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when(requestCode) {
+            LOCATION_PERMISSION_REQUEST_CODE -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    when {
+                        PermissionUtils.isLocationEnabled(this) -> run {
+                            //setUpLocationListener()
+                            Log.i(TAG, "Asked permissions and recd!")
+                        } else -> {
+                        PermissionUtils.showGPSNotEnabledDialog(this)
+                    }
+                    }
+                } else {
+                    Toast.makeText(this, "Location not granted", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+//testBuilder -- object, serviceBuilder
+    //test - interface, DestinationService
+    private fun callTest() {
+//        val testService: test = testBuilder.buildService(test::class.java)
+//        val requestCall: Call<List<testData>> = testService.testFun()
+//
+//        requestCall.enqueue(object: Callback<List<testData>> {
+//            override fun onResponse(call: Call<List<testData>>, response: Response<List<testData>>) {
+//                Log.i(TAG, "Kind of got response")
+//                if(response.isSuccessful) {
+//                    val retData: List<testData> = response.body()!!
+//                    for(value in retData) {
+//                        Log.i(TAG, value.name.toString())
+//                        Log.i(TAG, value.pass.toString())
+//                    }
+//                }
+//            }
+//
+//            override fun onFailure(call: Call<List<testData>>, t: Throwable) {
+//                Log.i(TAG, "Failed response")
+//                Toast.makeText(this@MainActivity, t.message, Toast.LENGTH_LONG).show()
+//            }
+//        })
+            val ngoDistancesList: MutableList<Double> = mutableListOf(10.0, 12.0, 13.0)
+            val mailService: ServerRequests = ServiceBuilder.buildService(ServerRequests::class.java)
+            val requestCall: Call<String> = mailService.sendMail(ngoDistancesList)
+            //TODO Check for values expected for return vs sending
+            requestCall.enqueue(object: Callback<String>{
+            override fun onResponse(call: Call<String>, response: Response<String>){
+                if(response.isSuccessful) {
+                    Log.i(TAG, "Sent Data!")
+                }
+            }
+            override fun onFailure(call: Call<String>, t: Throwable) {
+                Log.i(TAG, "${t.message}")
+            }
+        })
     }
 }
