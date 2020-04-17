@@ -68,35 +68,41 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                             //setUpLocationListener()
                         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this) //Works only if last location is given or else null
                         fusedLocationClient.lastLocation.addOnSuccessListener {
-                            Log.i(TAG, "{${it.longitude}, {${it.latitude}}")
                             if (it == null) {
                                 Toast.makeText(this, "Error fetching coordinates", Toast.LENGTH_LONG).show()
+                                val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+                                val locationRequest = LocationRequest().setInterval(2000).setFastestInterval(2000)
+                                    .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                                fusedLocationProviderClient.requestLocationUpdates(locationRequest, object: LocationCallback() {
+                                    override fun onLocationResult(locationResult: LocationResult?) {
+                                        super.onLocationResult(locationResult)
+
+                                        if (locationResult != null) {
+                                            for(location in locationResult.locations) {
+                                                userLat = location.latitude
+                                                userLong = location.longitude
+                                                Log.i(TAG, "Lat: ${location.latitude}")
+                                                Log.i(TAG, "Long: ${location.longitude}")
+                                                //Looper.myLooper()?.quitSafely()
+                                                break
+                                            }
+                                        }
+                                    }
+                                },
+                                    Looper.myLooper()) // ---commented till here
                             }
-                            userLat = it.latitude
-                            userLong = it.longitude
+                            else {
+                                Log.i(TAG, "{${it.longitude}, {${it.latitude}}")
+                                userLat = it.latitude
+                                userLong = it.longitude
+                            }
                         }.addOnFailureListener { exception ->
                             Log.i(TAG, exception.toString())
                         }
-//                            val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-//                            val locationRequest = LocationRequest().setInterval(2000).setFastestInterval(2000)
-//                                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-//                            fusedLocationProviderClient.requestLocationUpdates(locationRequest, object: LocationCallback() {
-//                                override fun onLocationResult(locationResult: LocationResult?) {
-//                                    super.onLocationResult(locationResult)
-//
-//                                    if (locationResult != null) {
-//                                        for(location in locationResult.locations) {
-//                                            Log.i(TAG, "Lat: ${location.latitude}")
-//                                            Log.i(TAG, "Long: ${location.longitude}")
-//                                        }
-//                                    }
-//                                }
-//                            },
-//                                Looper.myLooper())
-                            //Log.i(MainActivity.TAG,"Permission given")
+                            Log.i(TAG,"Permission given")
                     } else ->  {
-                    PermissionUtils.showGPSNotEnabledDialog(this)
-                }
+                        PermissionUtils.showGPSNotEnabledDialog(this)
+                    }
                 }
             }  else -> {
                 PermissionUtils.requestAccessFineLocationPermission(this,
@@ -108,6 +114,7 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 //        val firebaseUser = mAuth.currentUser
 //        Log.i(TAG, "User is: $firebaseUser")
 
+        //To select an item from a drop down menu
         val product: Spinner = product_type
         Log.i(TAG, "Test message!")
         ArrayAdapter.createFromResource(
@@ -235,7 +242,7 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 )
 
                 Log.i(TAG, "$itemDetails")
-
+                Log.i(TAG, "$userLat, $userLong")
                 val itemDonatedRef = db.collection("Items Donated")
 
                 val docRef =
@@ -260,15 +267,13 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                                             ngoLong as Double, userLat, userLong
                                         )
                                         ngoEmailAndDistanceList[ngoEmail] = dist
-                                        //ngoNameAndDistanceList.add(dist.toInt(), ngoName as String) //add distance and name of the ngo
-                                        Log.i(UserPage.TAG, "$dist")
+                                        Log.i(TAG, "NGO DETAils = $ngoEmail, $ngoLat, $dist")
                                     }
                                 }
                             //Initialize service
-                            val mailService: ServerRequests =
-                                ServiceBuilder.buildService(ServerRequests::class.java)
-                            val requestCall: Call<MailSuccessResponse> =
-                                mailService.sendMail(ngoEmailAndDistanceList)
+                            Log.i(TAG, ngoEmailAndDistanceList.toString())
+                            val mailService: ServerRequests = ServiceBuilder.buildService(ServerRequests::class.java)
+                            val requestCall: Call<MailSuccessResponse> = mailService.sendMail(ngoEmailAndDistanceList)
                             //TODO Check for values expected for return vs sending
                             requestCall.enqueue(object : Callback<MailSuccessResponse> {
                                 override fun onResponse(

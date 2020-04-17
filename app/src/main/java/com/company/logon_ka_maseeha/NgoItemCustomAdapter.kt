@@ -46,7 +46,7 @@ class NgoItemCustomAdapter (private val donatedItems: ArrayList<NgoItemDisplayDa
             val itemStatus = donateItem.productStatus
 
 
-            //Work with statuses -- bring persistence in status
+            //TODO Work with statuses -- check for persistence in status
             when (itemStatus){
                 "Accepted Item" -> itemStatusBtn.text = "Item Collected"
                 "Item Collected" -> itemStatusBtn.text = "Item Donated"

@@ -56,6 +56,8 @@ class DonatedItemCustomAdapter(private val donatedItems: ArrayList<NgoItemDispla
             //ADU - Add. delete, update database
             itemStatusBtn.setOnClickListener(ADU(itemFirebaseId, donateItem))
         }
+
+        //Add, Delete, Update
         private fun ADU(itemId: String, donateItem: NgoItemDisplayData) : (View) -> Unit = {
             layoutPosition.also {
 

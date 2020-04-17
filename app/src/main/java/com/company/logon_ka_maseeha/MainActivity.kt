@@ -30,19 +30,20 @@ import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_user_page.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
-    
+
     companion object {
         private const val TAG = "DocSnippets"
         private const val RC_SIGN_IN = 9001
         private lateinit var auth: FirebaseAuth
         private lateinit var googleSignInClient: GoogleSignInClient
         private const val sharedPrefFile = "appSharedFile"
-        val LOCATION_PERMISSION_REQUEST_CODE = 1
+        const val LOCATION_PERMISSION_REQUEST_CODE = 1
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,12 +55,12 @@ class MainActivity : AppCompatActivity() {
 //            startActivity(intent)
 //        }
 
-        button.setOnClickListener {
-            callTest()
+        button.setOnClickListener{
+           //TODO -- for running test!
         }
 
         val user = FirebaseAuth.getInstance().currentUser
-        if(user != null) {
+        if (user != null) {
             Log.i(TAG, "User Exists!")
             val email = user.email
             val photoUrl = user.photoUrl.toString()
@@ -81,7 +82,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        gSignIn.setOnClickListener{
+        gSignIn.setOnClickListener {
             Log.i(TAG, "Called Google sign in")
             signIn()
         }
@@ -96,7 +97,7 @@ class MainActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
     }
 
-    private fun signIn(){
+    private fun signIn() {
         val signInIntent = googleSignInClient.signInIntent
         startActivityForResult(signInIntent, RC_SIGN_IN)
     }
@@ -104,7 +105,7 @@ class MainActivity : AppCompatActivity() {
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         Log.i(TAG, "Data is: $data")
-        if(requestCode == RC_SIGN_IN) {
+        if (requestCode == RC_SIGN_IN) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
                 val account = task.getResult(ApiException::class.java)
@@ -120,9 +121,8 @@ class MainActivity : AppCompatActivity() {
 
         val credential = GoogleAuthProvider.getCredential(acct.idToken, null)
         auth.signInWithCredential(credential)
-            .addOnCompleteListener (this){
-                    task ->
-                if(task.isSuccessful) {
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
                     Log.i(TAG, "Successful sign in: $task")
                     val user = auth.currentUser
                     val email = user?.email
@@ -141,22 +141,25 @@ class MainActivity : AppCompatActivity() {
                             "Name" to googleUserName,
                             "PhotoUrl" to googlePhotoUrl
                         )
-                        db.collection("Users").document(email).set(userDetails).addOnSuccessListener {
-                            val intent = Intent(this, UserPage::class.java)
-                            startActivity(intent)
-                        }.addOnFailureListener{
-                            exception -> Log.w(TAG, "Error adding to database!", exception)
+                        db.collection("Users").document(email).set(userDetails)
+                            .addOnSuccessListener {
+                                val intent = Intent(this, UserPage::class.java)
+                                startActivity(intent)
+                            }.addOnFailureListener { exception ->
+                            Log.w(TAG, "Error adding to database!", exception)
                         }
                     }
                 } else {
-                    Snackbar.make(activity_main, "Authentication failed", Snackbar.LENGTH_LONG).show()
+                    Snackbar.make(activity_main, "Authentication failed", Snackbar.LENGTH_LONG)
+                        .show()
                     Log.w(TAG, "signInWithCredential:failure", task.exception)
                 }
             }
     }
 
     private fun setSharedPreferences(gEmail: String, gPhotoUrl: String, gName: String) {
-        val sharedPreferences: SharedPreferences = this.getSharedPreferences(sharedPrefFile, Context.MODE_PRIVATE)
+        val sharedPreferences: SharedPreferences =
+            this.getSharedPreferences(sharedPrefFile, Context.MODE_PRIVATE)
         val editor: SharedPreferences.Editor = sharedPreferences.edit()
         editor.putString("email", gEmail)
         editor.putString("photoUrl", gPhotoUrl)
@@ -174,13 +177,18 @@ class MainActivity : AppCompatActivity() {
                 when {
                     PermissionUtils.isLocationEnabled(this) -> {
                         //setUpLocationListener()
-                        Log.i(TAG,"Permission given")
-                    } else ->  {
-                    PermissionUtils.showGPSNotEnabledDialog(this)
+                        Log.i(TAG, "Permission given")
+                    }
+                    else -> {
+                        PermissionUtils.showGPSNotEnabledDialog(this)
+                    }
                 }
-                }
-            }   else -> {
-                PermissionUtils.requestAccessFineLocationPermission(this, LOCATION_PERMISSION_REQUEST_CODE) //Change the requestId
+            }
+            else -> {
+                PermissionUtils.requestAccessFineLocationPermission(
+                    this,
+                    LOCATION_PERMISSION_REQUEST_CODE
+                ) //Change the requestId
             }
         }
     }
@@ -191,61 +199,22 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when(requestCode) {
+        when (requestCode) {
             LOCATION_PERMISSION_REQUEST_CODE -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     when {
                         PermissionUtils.isLocationEnabled(this) -> run {
                             //setUpLocationListener()
                             Log.i(TAG, "Asked permissions and recd!")
-                        } else -> {
-                        PermissionUtils.showGPSNotEnabledDialog(this)
-                    }
+                        }
+                        else -> {
+                            PermissionUtils.showGPSNotEnabledDialog(this)
+                        }
                     }
                 } else {
                     Toast.makeText(this, "Location not granted", Toast.LENGTH_LONG).show()
                 }
             }
         }
-    }
-//testBuilder -- object, serviceBuilder
-    //test - interface, DestinationService
-    private fun callTest() {
-//        val testService: test = testBuilder.buildService(test::class.java)
-//        val requestCall: Call<List<testData>> = testService.testFun()
-//
-//        requestCall.enqueue(object: Callback<List<testData>> {
-//            override fun onResponse(call: Call<List<testData>>, response: Response<List<testData>>) {
-//                Log.i(TAG, "Kind of got response")
-//                if(response.isSuccessful) {
-//                    val retData: List<testData> = response.body()!!
-//                    for(value in retData) {
-//                        Log.i(TAG, value.name.toString())
-//                        Log.i(TAG, value.pass.toString())
-//                    }
-//                }
-//            }
-//
-//            override fun onFailure(call: Call<List<testData>>, t: Throwable) {
-//                Log.i(TAG, "Failed response")
-//                Toast.makeText(this@MainActivity, t.message, Toast.LENGTH_LONG).show()
-//            }
-//        })
-            val ngoDistancesList: HashMap<String, Double> = hashMapOf("ash" to 3.0, "ish" to 5.0)
-
-            val mailService: ServerRequests = ServiceBuilder.buildService(ServerRequests::class.java)
-            val requestCall: Call<MailSuccessResponse> = mailService.sendMail(ngoDistancesList)
-            //TODO Check for values expected for return vs sending
-            requestCall.enqueue(object: Callback<MailSuccessResponse>{
-            override fun onResponse(call: Call<MailSuccessResponse>, response: Response<MailSuccessResponse>){
-                if(response.isSuccessful) {
-                    Log.i(TAG, "Sent Data!")
-                    Log.i(TAG, response.body()!!.toString())
-                }
-            }
-            override fun onFailure(call: Call<MailSuccessResponse>, t: Throwable) {
-                Log.i(TAG, "${t.message}")
-            }
-        })
     }
 }

@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -46,27 +47,8 @@ class UserPage : AppCompatActivity() {
             startActivity(intent)
         }
 
-        status_btn.setOnClickListener {
-//            val intent = Intent(this, StatusPage::class.java)
-//            intent.putExtra("email", email)
-//            startActivity(intent)
-
-            val db = Firebase.firestore
-            //Google's location
-            val userLat = 37.421998
-            val userLong = -122.084000
-
-            val docRef = db.collection("NGO").get().addOnSuccessListener {docs ->
-                for(doc in docs){
-                    val ngoCoords = doc.get("Coordinates") as ArrayList<*>
-                    val ngoLat = ngoCoords[0]
-                    val ngoLong = ngoCoords[1]
-                    val dist = calcDistanceBetweenUserAndNgo(ngoLat as Double,
-                        ngoLong as Double, userLat, userLong)
-                    Log.i(TAG, "$dist")
-                }
-            }
-
+        logoutButton.setOnClickListener{
+            FirebaseAuth.getInstance().signOut()
         }
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
@@ -78,7 +60,7 @@ class UserPage : AppCompatActivity() {
         val lists = ArrayList<ListItem>()
         val oneMb: Long = 1024 * 1024 //Max size of image
 
-        Log.i(StatusPage.TAG, email)
+        Log.i(TAG, "$email")
 
         val docRef = email?.let { db.collection("Users").document(it).collection("Donated Items") }
         docRef?.get()?.addOnSuccessListener { docs ->
