@@ -70,8 +70,8 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             Toast.makeText(this, "User exists! Yay!", Toast.LENGTH_LONG).show()
-//            val intent = Intent(this, UserPage::class.java)
-//            startActivity(intent)
+            val intent = Intent(this, UserPage::class.java)
+            startActivity(intent)
         } else {
             Log.i(TAG, "User does not exist!")
         }
@@ -231,7 +231,7 @@ class MainActivity : AppCompatActivity() {
 //                Toast.makeText(this@MainActivity, t.message, Toast.LENGTH_LONG).show()
 //            }
 //        })
-            val ngoDistancesList: MutableList<Double> = mutableListOf(10.0, 12.0, 13.0)
+            val ngoDistancesList: HashMap<String, Double> = hashMapOf("ash" to 3.0, "ish" to 5.0)
 
             val mailService: ServerRequests = ServiceBuilder.buildService(ServerRequests::class.java)
             val requestCall: Call<MailSuccessResponse> = mailService.sendMail(ngoDistancesList)

@@ -41,14 +41,16 @@ import kotlin.properties.Delegates
 
 class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
+    private lateinit var fileName: String
+    private lateinit var filePath: Uri
     companion object {
         private const val TAG = "DocSnippets"
         private lateinit var fusedLocationClient: FusedLocationProviderClient
         lateinit var item: String
-        lateinit var filePath: Uri
+        //lateinit var filePath: Uri
         lateinit var imgView: ImageView
         lateinit var downloadUri: String
-        lateinit var fileName: String
+        //lateinit var fileName: String
         const val PICK_IMAGE_REQUEST = 111
         val storage = Firebase.storage
         val db = Firebase.firestore
@@ -67,6 +69,9 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this) //Works only if last location is given or else null
                         fusedLocationClient.lastLocation.addOnSuccessListener {
                             Log.i(TAG, "{${it.longitude}, {${it.latitude}}")
+                            if (it == null) {
+                                Toast.makeText(this, "Error fetching coordinates", Toast.LENGTH_LONG).show()
+                            }
                             userLat = it.latitude
                             userLong = it.longitude
                         }.addOnFailureListener { exception ->
@@ -127,41 +132,52 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         }
 
         final_donate.setOnClickListener {
-            uploadData(fileName)
+            //TODO popup for confirmation
+            if(::fileName.isInitialized) {
+                uploadData(fileName)
+            } else {
+                Toast.makeText(this, "Kindly select an image before uploading item!", Toast.LENGTH_LONG).show()
+            }
         }
     }
 
-    private fun uploadToFirebase(): String{
+    private fun uploadToFirebase(): String {
         val storageRef = storage.reference
-        Log.i(TAG, "FP is $filePath") //filePath is simply the image data that will be received when onActivityResult is completed
-        fileName = filePath.toString()
-        fileName = fileName.substring(fileName.lastIndexOf("/") + 1)
-        val imageRef: StorageReference? = storageRef.child(fileName)
 
-        val uploadTask = imageRef?.putFile(filePath)
+        if(::filePath.isInitialized) {
+            Log.i(TAG, "FP is $filePath") //filePath is simply the image data that will be received when onActivityResult is completed
+            fileName = filePath.toString()
+            fileName = fileName.substring(fileName.lastIndexOf("/") + 1)
+            val imageRef: StorageReference? = storageRef.child(fileName)
 
-        uploadTask?.continueWithTask { task ->
-            if (!task.isSuccessful) {
-                task.exception?.let {
-                    throw it
+            val uploadTask = imageRef?.putFile(filePath)
+
+            uploadTask?.continueWithTask { task ->
+                if (!task.isSuccessful) {
+                    task.exception?.let {
+                        throw it
+                    }
                 }
-            }
-            imageRef.downloadUrl
+                imageRef.downloadUrl
 
-        }?.addOnCompleteListener { task ->
+            }?.addOnCompleteListener { task ->
                 if(task.isSuccessful) {
                     downloadUri = task.result.toString()
                     Toast.makeText(this, "Image Uploaded", Toast.LENGTH_LONG).show()
                     Log.i(TAG, downloadUri)
                 } else {
-                    Log.i(TAG, "Error getting urls")
+                    Log.i(TAG, "Error getting url")
                 }
-        }
+            }
 
-        if (uploadTask == null) {
+            if (uploadTask == null) {
+                Toast.makeText(this, "Please select an image before uploading", Toast.LENGTH_LONG).show()
+            }
+            return fileName
+        } else {
             Toast.makeText(this, "Please select an image before uploading", Toast.LENGTH_LONG).show()
+            return  ""
         }
-        return fileName
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -172,79 +188,122 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
             try{
                 val bitMap = MediaStore.Images.Media.getBitmap(contentResolver, filePath)
+                //TODO find alternative to deprecated method
                 imgView.setImageBitmap(bitMap)
             } catch (e: Exception) {
                 Log.e(TAG, e.toString())
             }
-        }
+        } //TODO a popup if the intent fails!
     }
 
     private fun uploadData(fileName: String) {
-        val time = Timestamp(System.currentTimeMillis())
-        //val email = intent.getStringExtra("email")
-        val sharedPreferences: SharedPreferences = getSharedPreferences("appSharedFile", Context.MODE_PRIVATE)
-        val email = sharedPreferences.getString("email", "")
-        Log.i(TAG, "email is: $email")
 
-        val mno = mobile_no as EditText
-        val userAddress = user_address as EditText
+        if (fileName == "") {
+            Toast.makeText(
+                this,
+                "Please select an image before donating the item!",
+                Toast.LENGTH_LONG
+            ).show()
+        } else {
+            val time = Timestamp(System.currentTimeMillis())
+            //val email = intent.getStringExtra("email")
+            val sharedPreferences: SharedPreferences =
+                getSharedPreferences("appSharedFile", Context.MODE_PRIVATE)
+            val email = sharedPreferences.getString("email", "")
+            val mno = mobile_no as EditText
+            val userAddress = user_address as EditText
 
-        val itemDetails = hashMapOf(
-            "Type" to item,
-            "Mobile_No" to mno.text.toString().toInt(),
-            "Address" to userAddress.text.toString(),
-            "ImageName" to fileName,
-            "DownloadUrl" to downloadUri,
-            "Timestamp" to time,
-            "Status" to "Awaiting Response",
-            "Uploaded By" to email
-        )
+            Log.i(TAG, "email is: $email")
 
-        Log.i(TAG, "$itemDetails")
+            if (mno.text.toString() == "" || userAddress.text.toString() == "") {
+                Toast.makeText(
+                    this,
+                    "Please fill out the details for the item before uploading",
+                    Toast.LENGTH_LONG
+                ).show()
+            } else {
 
-        val itemDonatedRef = db.collection("Items Donated")
+                val itemDetails = hashMapOf(
+                    "Type" to item,
+                    "Mobile_No" to mno.text.toString().toInt(),
+                    "Address" to userAddress.text.toString(),
+                    "ImageName" to fileName,
+                    "DownloadUrl" to downloadUri,
+                    "Timestamp" to time,
+                    "Status" to "Awaiting Response",
+                    "Uploaded By" to email
+                )
 
-        val docRef = email?.let { db.collection("Users").document(it).collection("Donated Items") }
-        docRef?.add(itemDetails)?.addOnSuccessListener { documentRef -> Log.i(TAG, documentRef.id)
-            itemDonatedRef.document(documentRef.id).set(itemDetails).addOnSuccessListener { //TODO - calculate distance, send email, post request, on success, notify
-                val ngoDb = Firebase.firestore
-                var ngoNameAndDistanceList: MutableList<MailData> = listOf(Pair)
+                Log.i(TAG, "$itemDetails")
 
-                val docRef = ngoDb.collection("NGO").get().addOnSuccessListener {docs ->
-                    for(doc in docs){
-                        val ngoCoords = doc.get("Coordinates") as ArrayList<*>
-                        val ngoLat = ngoCoords[0]
-                        val ngoLong = ngoCoords[1]
-                        val ngoName = doc.get("Name")
-                        val dist = calcDistanceBetweenUserAndNgo(ngoLat as Double,
-                            ngoLong as Double, userLat, userLong)
-                        ngoNameAndDistanceList.add(dist.toInt(), ngoName as String) //add distance and name of the ngo
-                        Log.i(UserPage.TAG, "$dist")
-                    }
-                }
-                //Initialize service
-                val mailService: ServerRequests = ServiceBuilder.buildService(ServerRequests::class.java)
-                val requestCall: Call<MailSuccessResponse> = mailService.sendMail(ngoDistancesList)
-                //TODO Check for values expected for return vs sending
-                requestCall.enqueue(object: Callback<MailSuccessResponse>{
-                    override fun onResponse(call: Call<MailSuccessResponse>, response: Response<MailSuccessResponse>){
-                        if(response.isSuccessful) {
-                            Log.i(TAG, "Sent Data!")
-                        }
-                    }
-                    override fun onFailure(call: Call<MailSuccessResponse>, t: Throwable) {
-                        Log.i(TAG, "${t.message}")
-                    }
-                })
+                val itemDonatedRef = db.collection("Items Donated")
+
+                val docRef =
+                    email?.let { db.collection("Users").document(it).collection("Donated Items") }
+                docRef?.add(itemDetails)?.addOnSuccessListener { documentRef ->
+                    Log.i(TAG, documentRef.id)
+                    itemDonatedRef.document(documentRef.id).set(itemDetails)
+                        .addOnSuccessListener { //TODO - calculate distance, send email, post request, on success, notify
+                            val ngoDb = Firebase.firestore
+                            //var ngoNameAndDistanceList: MutableList<MailData> = listOf(Pair)
+                            val ngoEmailAndDistanceList: HashMap<String, Double> = hashMapOf()
+
+                            val docRef =
+                                ngoDb.collection("NGO").get().addOnSuccessListener { docs ->
+                                    for (doc in docs) {
+                                        val ngoCoordinates = doc.get("Coordinates") as ArrayList<*>
+                                        val ngoLat = ngoCoordinates[0]
+                                        val ngoLong = ngoCoordinates[1]
+                                        val ngoEmail = doc.toString()
+                                        val dist = calcDistanceBetweenUserAndNgo(
+                                            ngoLat as Double,
+                                            ngoLong as Double, userLat, userLong
+                                        )
+                                        ngoEmailAndDistanceList[ngoEmail] = dist
+                                        //ngoNameAndDistanceList.add(dist.toInt(), ngoName as String) //add distance and name of the ngo
+                                        Log.i(UserPage.TAG, "$dist")
+                                    }
+                                }
+                            //Initialize service
+                            val mailService: ServerRequests =
+                                ServiceBuilder.buildService(ServerRequests::class.java)
+                            val requestCall: Call<MailSuccessResponse> =
+                                mailService.sendMail(ngoEmailAndDistanceList)
+                            //TODO Check for values expected for return vs sending
+                            requestCall.enqueue(object : Callback<MailSuccessResponse> {
+                                override fun onResponse(
+                                    call: Call<MailSuccessResponse>,
+                                    response: Response<MailSuccessResponse>
+                                ) {
+                                    if (response.isSuccessful) {
+                                        Log.i(TAG, "Mails sent!!")
+                                        Log.i(TAG, response.body()!!.toString())
+                                        Toast.makeText(
+                                            this@Donation,
+                                            "Mails sent to Ngo",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
+                                }
+
+                                override fun onFailure(
+                                    call: Call<MailSuccessResponse>,
+                                    t: Throwable
+                                ) {
+                                    Log.i(TAG, "${t.message}")
+                                }
+                            })
 
 //                val intent = Intent(this, UserPage::class.java)
 //                //intent.putExtra("email", email)
 //                startActivity(intent)
-            }.addOnFailureListener{
-                exception -> Log.i(TAG, "error inserting in Items donated collection: ", exception)
+                        }.addOnFailureListener { exception ->
+                            Log.i(TAG, "error inserting in Items donated collection: ", exception)
+                        }
+                }?.addOnFailureListener { exception ->
+                    Log.i(TAG, "Error", exception)
+                }
             }
-        }?.addOnFailureListener{
-                exception -> Log.i(TAG, "Error", exception)
         }
     }
 
