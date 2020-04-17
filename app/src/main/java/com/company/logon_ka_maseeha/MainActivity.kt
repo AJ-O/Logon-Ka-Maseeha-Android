@@ -232,16 +232,18 @@ class MainActivity : AppCompatActivity() {
 //            }
 //        })
             val ngoDistancesList: MutableList<Double> = mutableListOf(10.0, 12.0, 13.0)
+
             val mailService: ServerRequests = ServiceBuilder.buildService(ServerRequests::class.java)
-            val requestCall: Call<String> = mailService.sendMail(ngoDistancesList)
+            val requestCall: Call<MailSuccessResponse> = mailService.sendMail(ngoDistancesList)
             //TODO Check for values expected for return vs sending
-            requestCall.enqueue(object: Callback<String>{
-            override fun onResponse(call: Call<String>, response: Response<String>){
+            requestCall.enqueue(object: Callback<MailSuccessResponse>{
+            override fun onResponse(call: Call<MailSuccessResponse>, response: Response<MailSuccessResponse>){
                 if(response.isSuccessful) {
                     Log.i(TAG, "Sent Data!")
+                    Log.i(TAG, response.body()!!.toString())
                 }
             }
-            override fun onFailure(call: Call<String>, t: Throwable) {
+            override fun onFailure(call: Call<MailSuccessResponse>, t: Throwable) {
                 Log.i(TAG, "${t.message}")
             }
         })

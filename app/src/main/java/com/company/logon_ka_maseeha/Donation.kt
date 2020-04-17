@@ -16,7 +16,8 @@ import android.widget.*
 import androidx.annotation.RequiresApi
 import com.company.logon_ka_maseeha.services.ServerRequests
 import com.company.logon_ka_maseeha.services.ServiceBuilder
-import com.company.logon_ka_maseeha.services.mailData
+import com.company.logon_ka_maseeha.services.MailData
+import com.company.logon_ka_maseeha.services.MailSuccessResponse
 import com.google.android.gms.location.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -207,30 +208,31 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         docRef?.add(itemDetails)?.addOnSuccessListener { documentRef -> Log.i(TAG, documentRef.id)
             itemDonatedRef.document(documentRef.id).set(itemDetails).addOnSuccessListener { //TODO - calculate distance, send email, post request, on success, notify
                 val ngoDb = Firebase.firestore
-                var ngoDistancesList: MutableList<Double> = mutableListOf()
+                var ngoNameAndDistanceList: MutableList<MailData> = listOf(Pair)
 
                 val docRef = ngoDb.collection("NGO").get().addOnSuccessListener {docs ->
                     for(doc in docs){
                         val ngoCoords = doc.get("Coordinates") as ArrayList<*>
                         val ngoLat = ngoCoords[0]
                         val ngoLong = ngoCoords[1]
+                        val ngoName = doc.get("Name")
                         val dist = calcDistanceBetweenUserAndNgo(ngoLat as Double,
                             ngoLong as Double, userLat, userLong)
-                        ngoDistancesList.add(dist)
+                        ngoNameAndDistanceList.add(dist.toInt(), ngoName as String) //add distance and name of the ngo
                         Log.i(UserPage.TAG, "$dist")
                     }
                 }
                 //Initialize service
                 val mailService: ServerRequests = ServiceBuilder.buildService(ServerRequests::class.java)
-                val requestCall: Call<String> = mailService.sendMail(ngoDistancesList)
+                val requestCall: Call<MailSuccessResponse> = mailService.sendMail(ngoDistancesList)
                 //TODO Check for values expected for return vs sending
-                requestCall.enqueue(object: Callback<String>{
-                    override fun onResponse(call: Call<String>, response: Response<String>){
+                requestCall.enqueue(object: Callback<MailSuccessResponse>{
+                    override fun onResponse(call: Call<MailSuccessResponse>, response: Response<MailSuccessResponse>){
                         if(response.isSuccessful) {
                             Log.i(TAG, "Sent Data!")
                         }
                     }
-                    override fun onFailure(call: Call<String>, t: Throwable) {
+                    override fun onFailure(call: Call<MailSuccessResponse>, t: Throwable) {
                         Log.i(TAG, "${t.message}")
                     }
                 })

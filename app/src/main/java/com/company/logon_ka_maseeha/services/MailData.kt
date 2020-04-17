@@ -1,5 +1,6 @@
 package com.company.logon_ka_maseeha.services
 
-data class mailData(
-    val distance: Double? = null
+data class MailData(
+    val distance: Double? = null,
+    val ngoName: String? = null
 )

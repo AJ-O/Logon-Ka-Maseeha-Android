@@ -9,5 +9,5 @@ interface ServerRequests {
 
     //@Body converts data sent as parameters to JSON
     @POST("sendMailToNgo")
-    fun sendMail(@Body ngoDistances: List<Double>): Call<String>
+    fun sendMail(@Body ngoDistances: List<Double>): Call<MailSuccessResponse>
 }
