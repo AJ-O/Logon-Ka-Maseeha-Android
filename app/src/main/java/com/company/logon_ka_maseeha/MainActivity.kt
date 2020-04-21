@@ -19,6 +19,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.material.snackbar.Snackbar
 import com.google.api.ServiceOrBuilder
 import com.google.firebase.auth.FirebaseAuth
@@ -26,6 +27,7 @@ import com.google.firebase.auth.FirebaseUser
 //import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -57,6 +59,19 @@ class MainActivity : AppCompatActivity() {
 
         button.setOnClickListener{
            //TODO -- for running test!
+            //checkFirebaseDeployment()
+//            FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener(OnCompleteListener { task ->
+//                if(!task.isSuccessful) {
+//                    Log.i(TAG, "Get instance id failed", task.exception)
+//                    return@OnCompleteListener
+//                }
+//
+//                val token = task.result?.token
+//
+//                //val msg = getString(R.string.msg_token_fmt, token)
+//                Log.i(TAG, "This is the registration token: $token")
+//                Toast.makeText(baseContext, token, Toast.LENGTH_LONG).show()
+//            })
         }
 
         val user = FirebaseAuth.getInstance().currentUser
@@ -123,36 +138,65 @@ class MainActivity : AppCompatActivity() {
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
+
                     Log.i(TAG, "Successful sign in: $task")
                     val user = auth.currentUser
                     val email = user?.email
                     val googleUserName = user?.displayName
                     val googlePhotoUrl = user?.photoUrl.toString()
+                    val db = Firebase.firestore
 
                     if (email != null) {
                         if (googleUserName != null) {
                             setSharedPreferences(email, googlePhotoUrl, googleUserName)
+                        } else {
+                            setSharedPreferences(email, googlePhotoUrl, email)
                         }
-                    }
 
-                    val db = Firebase.firestore
-                    if (email != null) {
                         val userDetails = hashMapOf(
                             "Name" to googleUserName,
                             "PhotoUrl" to googlePhotoUrl
                         )
-                        db.collection("Users").document(email).set(userDetails)
-                            .addOnSuccessListener {
-                                val intent = Intent(this, UserPage::class.java)
-                                startActivity(intent)
-                            }.addOnFailureListener { exception ->
-                            Log.w(TAG, "Error adding to database!", exception)
-                        }
+                        val docRef = db.collection("Users").document(email)
+                        //Getting device's registration token
+
+                        var token: String? = null
+                        FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener(
+                            OnCompleteListener { task ->
+                                if (!task.isSuccessful) {
+                                    Log.i(TAG, "Get instance id failed", task.exception)
+                                    userDetails["registrationToken"] = ""
+                                    return@OnCompleteListener
+                                }
+
+                                token = task.result?.token
+                                //val msg = getString(R.string.msg_token_fmt, token)
+                                userDetails["registrationToken"] = token
+                                Log.i(TAG, "This is the registration token: $token")
+                                Toast.makeText(baseContext, token, Toast.LENGTH_LONG).show()
+                                docRef.set(userDetails)
+                                    .addOnSuccessListener {
+                                        val intent = Intent(this, UserPage::class.java)
+                                        startActivity(intent)
+                                    }.addOnFailureListener { exception ->
+                                        Log.w(TAG, "Error adding to database!", exception)
+                                    }
+                            })//Failure to get user's registration id
+                            .addOnFailureListener {
+                                userDetails["registrationToken"] = ""
+                                docRef.set(userDetails)
+                                    .addOnSuccessListener {
+                                        val intent = Intent(this, UserPage::class.java)
+                                        startActivity(intent)
+                                    }.addOnFailureListener { exception ->
+                                        Log.w(TAG, "Error adding to database!", exception)
+                                    }
+                            }
+                    } else {
+                        Snackbar.make(activity_main, "Authentication failed", Snackbar.LENGTH_LONG)
+                            .show()
+                        Log.w(TAG, "signInWithCredential:failure", task.exception)
                     }
-                } else {
-                    Snackbar.make(activity_main, "Authentication failed", Snackbar.LENGTH_LONG)
-                        .show()
-                    Log.w(TAG, "signInWithCredential:failure", task.exception)
                 }
             }
     }
@@ -216,5 +260,29 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun checkFirebaseDeployment() {
+        val TAG = "DocSnippets"
+        val ngoDistanceList: HashMap<String, Double> = hashMapOf("ashishleiot@gmail.com" to 3.9, "aj001.aj002@gmail.com" to 4.9)
+        val mailService: ServerRequests = ServiceBuilder.buildService(ServerRequests::class.java)
+        val requestCall: Call<MailSuccessResponse> = mailService.sendMail(ngoDistanceList)
+
+        requestCall.enqueue(object: Callback<MailSuccessResponse> {
+            override fun onResponse(
+                call: Call<MailSuccessResponse>,
+                response: Response<MailSuccessResponse>
+            ) {
+                if (response.isSuccessful) {
+                    Log.i(TAG, "Mails Sent")
+                    Log.i(TAG, response.body()!!.toString())
+                }
+            }
+
+            override fun onFailure(call: Call<MailSuccessResponse>, t: Throwable) {
+                Log.i(TAG, t.message.toString())
+            }
+
+        })
     }
 }

@@ -46,7 +46,7 @@ class Login : AppCompatActivity() {
 
         Log.i(TAG, "$ngoEmail $pass")
 
-        val docRef = db.collection("NGO").document("testNgoArea@gmail.com") //Replace with ngo email
+        val docRef = db.collection("NGO").document(ngoEmail) //Replace with ngo email
 
         docRef.get()
             .addOnSuccessListener { doc ->
@@ -56,7 +56,7 @@ class Login : AppCompatActivity() {
 //                    val currHashedPassword = printHexBinary(bytes)
 
                     //if(hashPassword == currHashedPassword) {
-                    if (hashPassword == "testHash") {
+                    if (hashPassword == "ashpak") {//TODO implement hash password functionality!
                         Log.i(TAG, "User exists!")
 
                         val ngoName = doc.get("Name") as String

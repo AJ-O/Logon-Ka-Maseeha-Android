@@ -1,6 +1,7 @@
 package com.company.logon_ka_maseeha
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.view.LayoutInflater
 import android.graphics.Bitmap
 import android.util.Log
@@ -9,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -71,13 +73,14 @@ class DonatedItemCustomAdapter(private val donatedItems: ArrayList<NgoItemDispla
                     "Timestamp" to donateItem.donatedDate
                 )
 
-                val db = Firebase.firestore
+                val db = Firebase.firestore //TODO Replace " " with _
                 //Set data for NGO
-                db.collection("NGO").document(donateItem.ngoEmail).collection("Selected Items").document(itemId).set(documentFields).addOnSuccessListener {
+                db.collection("NGO").document(donateItem.ngoEmail).collection("Selected_Items").document(itemId).set(documentFields).addOnSuccessListener {
                     //Update data for the individual User
-                    db.collection("Users").document(donateItem.userEmail).collection("Donated Items").document(itemId).update("Status", "Accepted Item").addOnSuccessListener {
+                    //TODO Change Donated Items 'Donated_Items'"
+                    db.collection("Users").document(donateItem.userEmail).collection("Donated_Items").document(itemId).update("Status", "Accepted Item").addOnSuccessListener {
                         //Delete document from Items Donated collection
-                        db.collection("Items Donated").document(itemId).delete().addOnSuccessListener {
+                        db.collection("Items_Donated").document(itemId).delete().addOnSuccessListener {
                             donatedItems.removeAt(adapterPosition)
                             notifyItemRemoved(adapterPosition)
                         }.addOnFailureListener {

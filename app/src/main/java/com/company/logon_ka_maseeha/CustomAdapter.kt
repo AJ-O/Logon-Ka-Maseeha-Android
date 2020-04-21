@@ -51,6 +51,8 @@ class CustomAdapter(private val listItems: ArrayList<ListItem>) : RecyclerView.A
             val delItemRef = listItem.fbItemUserRef
             val email = listItem.email
 
+            donatedImg.setOnClickListener(increaseSize())
+
             if(listItem.productStatus == "Awaiting Response") {
                 rmItem.setOnClickListener(remove(delItemRef, email))
             } else {
@@ -58,11 +60,21 @@ class CustomAdapter(private val listItems: ArrayList<ListItem>) : RecyclerView.A
             }
         }
 
+        private fun increaseSize(): (View) -> Unit = {
+            layoutPosition.also {
+                //TODO create popup!
+                Log.i(TAG, "Need to create popups")
+            }
+        }
+
         private fun remove(delId: String, email: String): (View) -> Unit = {
             layoutPosition.also {
-                db.collection("Users/$email/Donated Items").document(delId).delete().addOnSuccessListener {
+
+                //TODO Change Donated Items 'Donated_Items'"
+
+                db.collection("Users/$email/Donated_Items").document(delId).delete().addOnSuccessListener {
                     Log.i(TAG, "Item Deleted")
-                    db.collection("Items Donated").document(delId).delete().addOnSuccessListener {
+                    db.collection("Items_Donated").document(delId).delete().addOnSuccessListener {
                         Log.i(TAG, "Item Deleted from Items Donated collection")
                     }.addOnFailureListener{
                         Log.i(TAG, "Failed to delete in Items donated collection")

@@ -65,9 +65,9 @@ class NgoItemCustomAdapter (private val donatedItems: ArrayList<NgoItemDisplayDa
             layoutPosition.also {
                 val db = Firebase.firestore
                 val updatedStatus = getNextStatus(itemStatus)
-
-                db.collection("Users/$userEmail/Donated Items").document(itemId).update("Status", updatedStatus).addOnSuccessListener {
-                    db.collection("NGO/$ngoEmail/Selected Items").document(itemId).update("Status", updatedStatus).addOnSuccessListener {
+                //TODO Change Donated Items 'Donated_Items' and " " with _ "
+                db.collection("Users/$userEmail/Donated_Items").document(itemId).update("Status", updatedStatus).addOnSuccessListener {
+                    db.collection("NGO/$ngoEmail/Selected_Items").document(itemId).update("Status", updatedStatus).addOnSuccessListener {
                         Log.i(TAG, "Item status update in Ngo and User Collection!")
                         notifyItemChanged(adapterPosition)
                     }.addOnFailureListener{

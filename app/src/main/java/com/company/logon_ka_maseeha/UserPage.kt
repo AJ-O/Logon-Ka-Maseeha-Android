@@ -11,8 +11,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.squareup.picasso.Picasso
@@ -20,6 +22,7 @@ import kotlinx.android.synthetic.main.activity_user_page.*
 import kotlin.math.acos
 import kotlin.math.cos
 import kotlin.math.sin
+import com.google.firebase.messaging.FirebaseMessagingService
 
 class UserPage : AppCompatActivity() {
 
@@ -49,6 +52,9 @@ class UserPage : AppCompatActivity() {
 
         logoutButton.setOnClickListener{
             FirebaseAuth.getInstance().signOut()
+            Toast.makeText(this, "User has successfully signed out", Toast.LENGTH_LONG).show()
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
         }
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
@@ -62,7 +68,7 @@ class UserPage : AppCompatActivity() {
 
         Log.i(TAG, "$email")
 
-        val docRef = email?.let { db.collection("Users").document(it).collection("Donated Items") }
+        val docRef = email?.let { db.collection("Users").document(it).collection("Donated_Items") }//TODO Change Donated Items 'Donated_Items'"
         docRef?.get()?.addOnSuccessListener { docs ->
             if (docs == null) {
                 Log.i(StatusPage.TAG, "No items donated!")

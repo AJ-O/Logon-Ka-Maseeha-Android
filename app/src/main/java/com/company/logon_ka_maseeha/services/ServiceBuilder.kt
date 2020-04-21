@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit
 
 object ServiceBuilder {
 
-    private const val URL = "http://10.0.2.2:8080/" // -- Change URl
+    private const val URL = "https://us-central1-logon-ka-maseeha.cloudfunctions.net/"//"http://10.0.2.2:8080/" // -- Change URl
 
     private val logger: HttpLoggingInterceptor = HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY) //Body will display all the information
 

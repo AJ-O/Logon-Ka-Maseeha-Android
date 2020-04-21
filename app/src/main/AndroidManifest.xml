@@ -1,33 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.company.logon_ka_maseeha">
-    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <application
         android:hardwareAccelerated="true"
-        android:largeHeap="true"
-        android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <service
+            android:name=".MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <!-- TODO set icon image resource-->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorAccent" />
         <activity android:name=".NgoItems" />
         <activity android:name=".DonatedItemLists" />
-        <activity android:name=".NgoPage"
-            android:exported="true"/>
-        <activity
-            android:name=".StatusPage"
-            android:exported="true" />
-        <activity
-            android:name=".Donation"
-            android:exported="true" />
-        <activity android:name=".UserPage"
-            android:exported="true"/>
+        <activity android:name=".NgoPage" />
+        <activity android:name=".StatusPage" />
+        <activity android:name=".Donation" />
+        <activity android:name=".UserPage" />
         <activity android:name=".Login" />
-        <activity
-            android:name=".SignUp"
-            android:exported="true" />
+        <activity android:name=".SignUp" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

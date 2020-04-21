@@ -31,9 +31,9 @@ class DonatedItemLists : AppCompatActivity() {
         val storageRef = storage.reference
 
         val sharedPreferences: SharedPreferences = getSharedPreferences("appSharedFile", Context.MODE_PRIVATE)
-        val ngoEmail = sharedPreferences.getString("email", "")
+        val ngoEmail = sharedPreferences.getString("ngoEmail", "")
 
-        val docRef = db.collection("Items Donated")
+        val docRef = db.collection("Items_Donated")//TODO Change " " with _ "
         val itemList = ArrayList<NgoItemDisplayData>()
         val oneMb: Long = 1024 * 1024
 

@@ -243,14 +243,14 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
                 Log.i(TAG, "$itemDetails")
                 Log.i(TAG, "$userLat, $userLong")
-                val itemDonatedRef = db.collection("Items Donated")
+                val itemDonatedRef = db.collection("Items_Donated")//TODO Change " " with _ "
 
                 val docRef =
-                    email?.let { db.collection("Users").document(it).collection("Donated Items") }
+                    email?.let { db.collection("Users").document(it).collection("Donated_Items") }
                 docRef?.add(itemDetails)?.addOnSuccessListener { documentRef ->
                     Log.i(TAG, documentRef.id)
                     itemDonatedRef.document(documentRef.id).set(itemDetails)
-                        .addOnSuccessListener { //TODO - calculate distance, send email, post request, on success, notify
+                        .addOnSuccessListener {
                             val ngoDb = Firebase.firestore
                             //var ngoNameAndDistanceList: MutableList<MailData> = listOf(Pair)
                             val ngoEmailAndDistanceList: HashMap<String, Double> = hashMapOf()
@@ -261,7 +261,7 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                                         val ngoCoordinates = doc.get("Coordinates") as ArrayList<*>
                                         val ngoLat = ngoCoordinates[0]
                                         val ngoLong = ngoCoordinates[1]
-                                        val ngoEmail = doc.toString()
+                                        val ngoEmail = doc.id
                                         val dist = calcDistanceBetweenUserAndNgo(
                                             ngoLat as Double,
                                             ngoLong as Double, userLat, userLong
@@ -269,36 +269,38 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                                         ngoEmailAndDistanceList[ngoEmail] = dist
                                         Log.i(TAG, "NGO DETAils = $ngoEmail, $ngoLat, $dist")
                                     }
-                                }
-                            //Initialize service
-                            Log.i(TAG, ngoEmailAndDistanceList.toString())
-                            val mailService: ServerRequests = ServiceBuilder.buildService(ServerRequests::class.java)
-                            val requestCall: Call<MailSuccessResponse> = mailService.sendMail(ngoEmailAndDistanceList)
-                            //TODO Check for values expected for return vs sending
-                            requestCall.enqueue(object : Callback<MailSuccessResponse> {
-                                override fun onResponse(
-                                    call: Call<MailSuccessResponse>,
-                                    response: Response<MailSuccessResponse>
-                                ) {
-                                    if (response.isSuccessful) {
-                                        Log.i(TAG, "Mails sent!!")
-                                        Log.i(TAG, response.body()!!.toString())
-                                        Toast.makeText(
-                                            this@Donation,
-                                            "Mails sent to Ngo",
-                                            Toast.LENGTH_LONG
-                                        ).show()
-                                    }
-                                }
+                                    Log.i(TAG, ngoEmailAndDistanceList.toString())
 
-                                override fun onFailure(
-                                    call: Call<MailSuccessResponse>,
-                                    t: Throwable
-                                ) {
-                                    Log.i(TAG, "${t.message}")
-                                }
-                            })
+                                    //Initialize service
+                                    val mailService: ServerRequests = ServiceBuilder.buildService(ServerRequests::class.java)
+                                    val requestCall: Call<MailSuccessResponse> = mailService.sendMail(ngoEmailAndDistanceList)
+                                    //TODO Check for values expected for return vs sending
+                                    requestCall.enqueue(object : Callback<MailSuccessResponse> {
+                                        override fun onResponse(
+                                            call: Call<MailSuccessResponse>,
+                                            response: Response<MailSuccessResponse>
+                                        ) {
+                                            if (response.isSuccessful) {
+                                                Log.i(TAG, "Mails sent!!")
+                                                Log.i(TAG, response.body()!!.toString())
+                                                Toast.makeText(
+                                                    this@Donation,
+                                                    "Mails sent to Ngo",
+                                                    Toast.LENGTH_LONG
+                                                ).show()
+                                                val intent = Intent(this@Donation, UserPage::class.java)
+                                                startActivity(intent)
+                                            }
+                                        }
 
+                                        override fun onFailure(
+                                            call: Call<MailSuccessResponse>,
+                                            t: Throwable
+                                        ) {
+                                            Log.i(TAG, "${t.message}")
+                                        }
+                                    })
+                                }
 //                val intent = Intent(this, UserPage::class.java)
 //                //intent.putExtra("email", email)
 //                startActivity(intent)

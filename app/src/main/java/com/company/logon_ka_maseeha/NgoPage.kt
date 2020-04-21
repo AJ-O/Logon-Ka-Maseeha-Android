@@ -51,7 +51,7 @@ class NgoPage : AppCompatActivity() {
         //val sharedPreferences: SharedPreferences = getSharedPreferences("appSharedFile", Context.MODE_PRIVATE)
         val ngoEmail = sharedPreferences.getString("ngoEmail", "")?:""
 
-        val docRef = db.collection("NGO").document(ngoEmail).collection("Selected Items")
+        val docRef = db.collection("NGO").document(ngoEmail).collection("Selected_Items")//TODO Change " " with _ "
         val itemList = ArrayList<NgoItemDisplayData>()
         val oneMb: Long = 1024 * 1024
 
