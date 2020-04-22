@@ -56,7 +56,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService(){
     }
         override fun onNewToken(token: String) {
             Log.i("DocSnippets", "This is the new generated token $token")
-            //TODO update this in the user's registration id in server
+            //Updating the new registration token in the server of the user
             val sharedPreferences: SharedPreferences = getSharedPreferences("appSharedFile", Context.MODE_PRIVATE)
             val email = sharedPreferences.getString("email", "")
             val db = Firebase.firestore

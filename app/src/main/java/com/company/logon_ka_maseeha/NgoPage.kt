@@ -32,12 +32,6 @@ class NgoPage : AppCompatActivity() {
 
         ngoName.text = globalNgoName
 
-        //Remove this
-        ngoItems.setOnClickListener{
-            val intent = Intent(this, NgoItems::class.java)
-            startActivity(intent)
-        }
-
         collections.setOnClickListener{
             val intent = Intent(this, DonatedItemLists::class.java)
             startActivity(intent)
@@ -51,7 +45,7 @@ class NgoPage : AppCompatActivity() {
         //val sharedPreferences: SharedPreferences = getSharedPreferences("appSharedFile", Context.MODE_PRIVATE)
         val ngoEmail = sharedPreferences.getString("ngoEmail", "")?:""
 
-        val docRef = db.collection("NGO").document(ngoEmail).collection("Selected_Items")//TODO Change " " with _ "
+        val docRef = db.collection("NGO").document(ngoEmail).collection("Selected_Items")
         val itemList = ArrayList<NgoItemDisplayData>()
         val oneMb: Long = 1024 * 1024
 
@@ -103,13 +97,13 @@ class NgoPage : AppCompatActivity() {
                                 val adapter = NgoItemCustomAdapter(itemList)
                                 recyclerView.adapter = adapter
                             }.addOnFailureListener { exception ->
-                                Log.i(NgoItems.TAG, exception.toString())
+                                Log.i(TAG, exception.toString())
                             }
                         }
                     }
                 }
             }.addOnFailureListener{
-                    exception -> Log.i(NgoItems.TAG, "Error: ", exception)
+                    exception -> Log.i(TAG, "Error: ", exception)
             }
         val adapter = NgoItemCustomAdapter(itemList)
         recyclerView.adapter = adapter

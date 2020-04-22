@@ -52,28 +52,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-//        main_sign_up.setOnClickListener {
-//            val intent = Intent(this, SignUp :: class.java)
-//            startActivity(intent)
-//        }
-
-        button.setOnClickListener{
-           //TODO -- for running test!
-            //checkFirebaseDeployment()
-//            FirebaseInstanceId.getInstance().instanceId.addOnCompleteListener(OnCompleteListener { task ->
-//                if(!task.isSuccessful) {
-//                    Log.i(TAG, "Get instance id failed", task.exception)
-//                    return@OnCompleteListener
-//                }
-//
-//                val token = task.result?.token
-//
-//                //val msg = getString(R.string.msg_token_fmt, token)
-//                Log.i(TAG, "This is the registration token: $token")
-//                Toast.makeText(baseContext, token, Toast.LENGTH_LONG).show()
-//            })
-        }
-
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
             Log.i(TAG, "User Exists!")

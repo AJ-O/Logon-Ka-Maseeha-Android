@@ -65,7 +65,6 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             PermissionUtils.isAccessFineLocationGranted(this) -> {
                 when {
                     PermissionUtils.isLocationEnabled(this) -> {
-                            //setUpLocationListener()
                         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this) //Works only if last location is given or else null
                         fusedLocationClient.lastLocation.addOnSuccessListener {
                             if (it == null) {
@@ -110,10 +109,6 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 ) //Change the requestId
             }
         }
-//        val mAuth = FirebaseAuth.getInstance()
-//        val firebaseUser = mAuth.currentUser
-//        Log.i(TAG, "User is: $firebaseUser")
-
         //To select an item from a drop down menu
         val product: Spinner = product_type
         Log.i(TAG, "Test message!")
@@ -243,7 +238,7 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
                 Log.i(TAG, "$itemDetails")
                 Log.i(TAG, "$userLat, $userLong")
-                val itemDonatedRef = db.collection("Items_Donated")//TODO Change " " with _ "
+                val itemDonatedRef = db.collection("Items_Donated")
 
                 val docRef =
                     email?.let { db.collection("Users").document(it).collection("Donated_Items") }
@@ -274,7 +269,6 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                                     //Initialize service
                                     val mailService: ServerRequests = ServiceBuilder.buildService(ServerRequests::class.java)
                                     val requestCall: Call<MailSuccessResponse> = mailService.sendMail(ngoEmailAndDistanceList)
-                                    //TODO Check for values expected for return vs sending
                                     requestCall.enqueue(object : Callback<MailSuccessResponse> {
                                         override fun onResponse(
                                             call: Call<MailSuccessResponse>,

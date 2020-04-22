@@ -24,12 +24,12 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorAccent" />
-        <activity android:name=".NgoItems" />
         <activity android:name=".DonatedItemLists" />
         <activity android:name=".NgoPage" />
         <activity android:name=".StatusPage" />
         <activity android:name=".Donation" />
-        <activity android:name=".UserPage" />
+        <activity android:name=".UserPage"
+            android:exported="true"/>
         <activity android:name=".Login" />
         <activity android:name=".SignUp" />
         <activity android:name=".MainActivity">

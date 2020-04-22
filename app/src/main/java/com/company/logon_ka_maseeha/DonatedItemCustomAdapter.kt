@@ -73,11 +73,10 @@ class DonatedItemCustomAdapter(private val donatedItems: ArrayList<NgoItemDispla
                     "Timestamp" to donateItem.donatedDate
                 )
 
-                val db = Firebase.firestore //TODO Replace " " with _
+                val db = Firebase.firestore
                 //Set data for NGO
                 db.collection("NGO").document(donateItem.ngoEmail).collection("Selected_Items").document(itemId).set(documentFields).addOnSuccessListener {
                     //Update data for the individual User
-                    //TODO Change Donated Items 'Donated_Items'"
                     db.collection("Users").document(donateItem.userEmail).collection("Donated_Items").document(itemId).update("Status", "Accepted Item").addOnSuccessListener {
                         //Delete document from Items Donated collection
                         db.collection("Items_Donated").document(itemId).delete().addOnSuccessListener {

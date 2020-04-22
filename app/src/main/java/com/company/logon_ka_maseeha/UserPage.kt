@@ -68,7 +68,7 @@ class UserPage : AppCompatActivity() {
 
         Log.i(TAG, "$email")
 
-        val docRef = email?.let { db.collection("Users").document(it).collection("Donated_Items") }//TODO Change Donated Items 'Donated_Items'"
+        val docRef = email?.let { db.collection("Users").document(it).collection("Donated_Items") }
         docRef?.get()?.addOnSuccessListener { docs ->
             if (docs == null) {
                 Log.i(StatusPage.TAG, "No items donated!")

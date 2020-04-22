@@ -18,8 +18,9 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="17dp"
-            android:layout_marginEnd="25dp"
+            android:layout_marginTop="26dp"
+            android:layout_marginEnd="44dp"
+            android:background="@drawable/logout_design"
             android:text="Logout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -41,8 +42,9 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="27dp"
-            android:layout_marginEnd="137dp"
-            android:text="TextView" />
+            android:layout_marginEnd="140dp"
+            android:text="TextView"
+            android:textSize="20sp" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
@@ -59,10 +61,13 @@
         android:layout_height="50dp"
         android:layout_marginTop="645dp"
         android:layout_marginEnd="8dp"
-        android:text="+"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.976" />
+        app:layout_constraintVertical_bias="0.976"
+        android:background="@drawable/add_button"
+        android:textColor="#ffffff"
+        android:textSize="30sp"
+        android:text="+"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

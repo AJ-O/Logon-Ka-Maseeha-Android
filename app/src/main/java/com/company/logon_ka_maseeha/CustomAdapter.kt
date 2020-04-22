@@ -70,8 +70,6 @@ class CustomAdapter(private val listItems: ArrayList<ListItem>) : RecyclerView.A
         private fun remove(delId: String, email: String): (View) -> Unit = {
             layoutPosition.also {
 
-                //TODO Change Donated Items 'Donated_Items'"
-
                 db.collection("Users/$email/Donated_Items").document(delId).delete().addOnSuccessListener {
                     Log.i(TAG, "Item Deleted")
                     db.collection("Items_Donated").document(delId).delete().addOnSuccessListener {

@@ -19,20 +19,10 @@
             android:layout_height="47dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:layout_marginStart="18dp"
-            android:layout_marginTop="22dp" />
-
-        <Button
-            android:id="@+id/ngoItems"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
+            android:layout_marginStart="112dp"
             android:layout_marginTop="22dp"
-            android:layout_marginEnd="34dp"
-            android:text="Selected Items"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            android:text="TextView"
+            android:textSize="35sp"/>
 
         <Button
             android:id="@+id/collections"
@@ -42,6 +32,9 @@
             android:layout_alignParentBottom="true"
             android:layout_marginEnd="36dp"
             android:layout_marginBottom="21dp"
+            android:background="@drawable/add_button"
+            android:textSize="30sp"
+            android:textColor="#ffffff"
             android:text="+" />
 
         <androidx.recyclerview.widget.RecyclerView

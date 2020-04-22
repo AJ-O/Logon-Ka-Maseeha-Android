@@ -32,8 +32,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:layout_marginStart="61dp"
-            android:layout_marginTop="204dp"
+            android:layout_marginStart="67dp"
+            android:layout_marginTop="235dp"
             android:ems="10"
             android:hint="Mobile Number"
             android:inputType="number"
@@ -46,21 +46,9 @@
             android:layout_height="80dp"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="274dp"
-            android:layout_marginEnd="59dp"
+            android:layout_marginTop="306dp"
+            android:layout_marginEnd="64dp"
             android:hint="Address" />
-
-        <Button
-            android:id="@+id/get_coords"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginEnd="138dp"
-            android:layout_marginBottom="151dp"
-            android:text="Get coordinates"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
 
         <Button
             android:id="@+id/final_donate"
@@ -68,8 +56,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginStart="140dp"
-            android:layout_marginBottom="52dp"
+            android:layout_marginStart="160dp"
+            android:layout_marginBottom="112dp"
             android:text="Donate"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
