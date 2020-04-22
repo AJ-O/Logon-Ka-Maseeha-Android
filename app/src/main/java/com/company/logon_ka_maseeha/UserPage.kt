@@ -1,6 +1,8 @@
 package com.company.logon_ka_maseeha
 
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.BitmapFactory
@@ -51,10 +53,20 @@ class UserPage : AppCompatActivity() {
         }
 
         logoutButton.setOnClickListener{
-            FirebaseAuth.getInstance().signOut()
-            Toast.makeText(this, "User has successfully signed out", Toast.LENGTH_LONG).show()
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+            var builder = AlertDialog.Builder(this)
+            builder.setTitle("Confirmation")
+            builder.setMessage("Do you want to sign out?")
+            builder.setPositiveButton("Yes"){
+                    _: DialogInterface?, _: Int ->
+                    FirebaseAuth.getInstance().signOut()
+                    Toast.makeText(this, "User has successfully signed out", Toast.LENGTH_LONG).show()
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
+            }
+            val alertDialog: AlertDialog = builder.create()
+            // Set other dialog properties
+            alertDialog.setCancelable(false)
+            alertDialog.show()
         }
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)

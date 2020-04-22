@@ -27,7 +27,8 @@
         <activity android:name=".DonatedItemLists" />
         <activity android:name=".NgoPage" />
         <activity android:name=".StatusPage" />
-        <activity android:name=".Donation" />
+        <activity android:name=".Donation"
+            android:exported="true"/>
         <activity android:name=".UserPage"
             android:exported="true"/>
         <activity android:name=".Login" />

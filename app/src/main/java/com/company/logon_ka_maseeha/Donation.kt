@@ -1,7 +1,9 @@
 package com.company.logon_ka_maseeha
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
@@ -135,11 +137,23 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         final_donate.setOnClickListener {
             //TODO popup for confirmation
-            if(::fileName.isInitialized) {
-                uploadData(fileName)
-            } else {
-                Toast.makeText(this, "Kindly select an image before uploading item!", Toast.LENGTH_LONG).show()
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Confirmation")
+            builder.setMessage("Do you want to update this item?")
+            builder.setPositiveButton("Yes"){ _:DialogInterface?, _: Int ->
+                if(::fileName.isInitialized) {
+                    uploadData(fileName)
+                } else {
+                    Toast.makeText(this, "Kindly select an image before uploading item!", Toast.LENGTH_LONG).show()
+                }
             }
+            builder.setNegativeButton("No"){
+                    _, _ ->  
+            }
+        }
+
+        button2.setOnClickListener{
+
         }
     }
 
