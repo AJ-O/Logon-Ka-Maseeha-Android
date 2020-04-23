@@ -12,3 +12,6 @@
 /captures
 .externalNativeBuild
 .cxx
+app/src/main/res/layout/activity_sign_up.xml
+app/src/main/java/com/company/logon_ka_maseeha/SignUp.kt
+app/google-services.json

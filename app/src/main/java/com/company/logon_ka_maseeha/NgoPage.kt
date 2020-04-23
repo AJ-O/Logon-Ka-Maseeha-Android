@@ -1,5 +1,6 @@
 package com.company.logon_ka_maseeha
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -10,6 +11,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -27,15 +29,37 @@ class NgoPage : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ngo_page)
 
-        val sharedPreferences: SharedPreferences = getSharedPreferences("appSharedFile", Context.MODE_PRIVATE)
-        val globalNgoName = sharedPreferences.getString("ngoName", "")
-
-        ngoName.text = globalNgoName
-
         collections.setOnClickListener{
             val intent = Intent(this, DonatedItemLists::class.java)
             startActivity(intent)
         }
+
+        displayItems()
+
+        ngoLogout.setOnClickListener{
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Sign out")
+            builder.setMessage("Do you want to sign out?")
+            builder.setPositiveButton("Yes"){ _, _  ->
+                FirebaseAuth.getInstance().signOut()
+            }
+            builder.setNegativeButton("No"){ _, _ -> }
+            val alertDialog: AlertDialog = builder.create()
+            alertDialog.setCancelable(true)
+            alertDialog.show()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        displayItems()
+    }
+
+    private fun displayItems() {
+        val sharedPreferences: SharedPreferences = getSharedPreferences("appSharedFile", Context.MODE_PRIVATE)
+        val globalNgoName = sharedPreferences.getString("ngoName", "")
+
+        ngoName.text = globalNgoName
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerViewNgo)
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
@@ -56,8 +80,13 @@ class NgoPage : AppCompatActivity() {
                 if (docs == null) {
                     Log.i(TAG, "No items donated")
                     Toast.makeText(this, "No items donated yet", Toast.LENGTH_LONG).show()
-//                    val intent = Intent(this, NgoPage::class.java)
-//                    startActivity(intent)
+                    val builder = AlertDialog.Builder(this)
+                    builder.setTitle("Message")
+                    builder.setMessage("No items to have been accepted yet")
+                    builder.setNeutralButton("Ok"){ _, _ -> }
+                    val alertDialog: AlertDialog = builder.create()
+                    alertDialog.setCancelable(true)
+                    alertDialog.show()
                 }
 
                 else {

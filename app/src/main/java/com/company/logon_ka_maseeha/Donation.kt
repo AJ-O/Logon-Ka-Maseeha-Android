@@ -7,39 +7,29 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
-import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Looper
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.widget.*
-import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
+import com.company.logon_ka_maseeha.services.MailSuccessResponse
 import com.company.logon_ka_maseeha.services.ServerRequests
 import com.company.logon_ka_maseeha.services.ServiceBuilder
-import com.company.logon_ka_maseeha.services.MailData
-import com.company.logon_ka_maseeha.services.MailSuccessResponse
 import com.google.android.gms.location.*
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
-import com.google.firebase.storage.ktx.storageMetadata
 import kotlinx.android.synthetic.main.activity_donation.*
-import retrofit2.Callback
 import retrofit2.Call
+import retrofit2.Callback
 import retrofit2.Response
-import java.net.FileNameMap
 import java.sql.Timestamp
-import java.time.Instant
-import java.time.format.DateTimeFormatter
 import kotlin.math.acos
 import kotlin.math.cos
 import kotlin.math.sin
-import kotlin.properties.Delegates
 
 class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
@@ -84,13 +74,12 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                                                 userLong = location.longitude
                                                 Log.i(TAG, "Lat: ${location.latitude}")
                                                 Log.i(TAG, "Long: ${location.longitude}")
-                                                //Looper.myLooper()?.quitSafely()
-                                                break
+                                                fusedLocationProviderClient.removeLocationUpdates(this)
                                             }
                                         }
                                     }
                                 },
-                                    Looper.myLooper()) // ---commented till here
+                                    Looper.myLooper())
                             }
                             else {
                                 Log.i(TAG, "{${it.longitude}, {${it.latitude}}")
@@ -132,11 +121,18 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         }
 
         uploadImg.setOnClickListener {
-            fileName = uploadToFirebase()
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Image Confirmation")
+            builder.setMessage("Is this the image you want to upload?")
+            builder.setPositiveButton("Yes") {
+                _, _ ->fileName = uploadToFirebase()
+            }
+            builder.setNegativeButton("No") { _, _ -> }
+            val alertDialog: AlertDialog = builder.create()
+            alertDialog.show()
         }
 
         final_donate.setOnClickListener {
-            //TODO popup for confirmation
             val builder = AlertDialog.Builder(this)
             builder.setTitle("Confirmation")
             builder.setMessage("Do you want to update this item?")
@@ -147,13 +143,9 @@ class Donation : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                     Toast.makeText(this, "Kindly select an image before uploading item!", Toast.LENGTH_LONG).show()
                 }
             }
-            builder.setNegativeButton("No"){
-                    _, _ ->  
-            }
-        }
-
-        button2.setOnClickListener{
-
+            builder.setNegativeButton("No"){ _, _ -> }
+            val alertDialog: AlertDialog = builder.create()
+            alertDialog.show()
         }
     }
 

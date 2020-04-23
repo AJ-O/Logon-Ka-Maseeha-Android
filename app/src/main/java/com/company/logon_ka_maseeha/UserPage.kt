@@ -13,10 +13,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.squareup.picasso.Picasso
@@ -24,7 +22,6 @@ import kotlinx.android.synthetic.main.activity_user_page.*
 import kotlin.math.acos
 import kotlin.math.cos
 import kotlin.math.sin
-import com.google.firebase.messaging.FirebaseMessagingService
 
 class UserPage : AppCompatActivity() {
 
@@ -36,6 +33,37 @@ class UserPage : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user_page)
 
+        donate_item_btn.setOnClickListener {
+            val intent = Intent(this, Donation::class.java)
+            startActivity(intent)
+        }
+
+        logoutButton.setOnClickListener{
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Confirmation")
+            builder.setMessage("Do you want to sign out?")
+            builder.setPositiveButton("Yes"){
+                    _: DialogInterface?, _: Int ->
+                FirebaseAuth.getInstance().signOut()
+                Toast.makeText(this, "User has successfully signed out", Toast.LENGTH_LONG).show()
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+            }
+            builder.setNegativeButton("No"){ _, _ -> }
+            val alertDialog: AlertDialog = builder.create()
+            // Set other dialog properties
+            alertDialog.setCancelable(true)
+            alertDialog.show()
+        }
+        displayUserItems()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        displayUserItems()
+    }
+
+    private fun displayUserItems() {
         val sharedPreferences: SharedPreferences = getSharedPreferences("appSharedFile", Context.MODE_PRIVATE)
         val email = sharedPreferences.getString("email", "")
         val photoUrl = sharedPreferences.getString("photoUrl", "")
@@ -45,29 +73,6 @@ class UserPage : AppCompatActivity() {
         val userNameEle = userName as TextView
         userNameEle.text = googleUserName
         Log.i(TAG, "shared pref: $email")
-
-        donate_item_btn.setOnClickListener {
-            val intent = Intent(this, Donation::class.java)
-            intent.putExtra("email", email)
-            startActivity(intent)
-        }
-
-        logoutButton.setOnClickListener{
-            var builder = AlertDialog.Builder(this)
-            builder.setTitle("Confirmation")
-            builder.setMessage("Do you want to sign out?")
-            builder.setPositiveButton("Yes"){
-                    _: DialogInterface?, _: Int ->
-                    FirebaseAuth.getInstance().signOut()
-                    Toast.makeText(this, "User has successfully signed out", Toast.LENGTH_LONG).show()
-                    val intent = Intent(this, MainActivity::class.java)
-                    startActivity(intent)
-            }
-            val alertDialog: AlertDialog = builder.create()
-            // Set other dialog properties
-            alertDialog.setCancelable(false)
-            alertDialog.show()
-        }
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
@@ -80,13 +85,19 @@ class UserPage : AppCompatActivity() {
 
         Log.i(TAG, "$email")
 
+        //TODO order by
         val docRef = email?.let { db.collection("Users").document(it).collection("Donated_Items") }
         docRef?.get()?.addOnSuccessListener { docs ->
             if (docs == null) {
                 Log.i(StatusPage.TAG, "No items donated!")
                 Toast.makeText(this, "No items donated", Toast.LENGTH_LONG).show()
-//                val intent = Intent(this, UserPage::class.java)
-//                startActivity(intent)
+                val builder = AlertDialog.Builder(this)
+                builder.setTitle("Message")
+                builder.setMessage("No items have been donated yet")
+                builder.setNeutralButton("Ok"){ _, _ -> }
+                val alertDialog: AlertDialog = builder.create()
+                alertDialog.setCancelable(true)
+                alertDialog.show()
             } else {
                 for (doc in docs) {
                     val productType = doc.get("Type")
@@ -115,10 +126,10 @@ class UserPage : AppCompatActivity() {
                     }.addOnFailureListener { exception ->
                         Log.i(StatusPage.TAG, "Error: ", exception)
                     }
-
                 }
             }
-        }?.addOnFailureListener { exception -> Log.i(StatusPage.TAG, "exception", exception)
+        }?.addOnFailureListener {
+                exception -> Log.i(StatusPage.TAG, "exception", exception)
         }
     }
 

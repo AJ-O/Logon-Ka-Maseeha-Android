@@ -13,6 +13,7 @@ import kotlinx.android.synthetic.main.activity_login.*
 import java.lang.StringBuilder
 import java.security.MessageDigest
 import android.content.SharedPreferences
+import com.google.firebase.auth.FirebaseAuth
 
 class Login : AppCompatActivity() {
 
@@ -21,11 +22,19 @@ class Login : AppCompatActivity() {
         private const val TAG = "DocSnippets"
         const val HEX_CHARS = "0123456789ABCDEF"
         private const val sharedPrefFile = "appSharedFile"
+        private lateinit var auth: FirebaseAuth
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
+        auth = FirebaseAuth.getInstance()
+
+        if (auth.currentUser != null) {
+            val intent = Intent(this, NgoPage::class.java)
+            startActivity(intent)
+        }
 
         login.setOnClickListener {
             val ele1 = sign_in_emailId as EditText
@@ -46,61 +55,67 @@ class Login : AppCompatActivity() {
 
         Log.i(TAG, "$ngoEmail $pass")
 
-        val docRef = db.collection("NGO").document(ngoEmail)
+        auth.signInWithEmailAndPassword(ngoEmail, pass).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val docRef = db.collection("NGO").document(ngoEmail)
 
-        docRef.get()
-            .addOnSuccessListener { doc ->
-                if (doc.exists()) {
-                    val hashPassword = doc.get("Password")
-                    val bytes = MessageDigest.getInstance("SHA-256").digest(pass.toByteArray())
-                    val currHashedPassword = printHexBinary(bytes)
+                docRef.get()
+                    .addOnSuccessListener { doc ->
+                        if (doc.exists()) {
+                            val hashPassword = doc.get("Password")
+                            val bytes =
+                                MessageDigest.getInstance("SHA-256").digest(pass.toByteArray())
+                            val currHashedPassword = printHexBinary(bytes)
+                            Log.i(TAG, "$currHashedPassword, $hashPassword")
 
-                    if (hashPassword == currHashedPassword) {
-                            Log.i(TAG, "User exists!")
+                            if (hashPassword == currHashedPassword) {
+                                Log.i(TAG, "User exists!")
+                                val ngoName = doc.get("Name") as String
+                                val sharedPreferences: SharedPreferences =
+                                    this.getSharedPreferences(sharedPrefFile, Context.MODE_PRIVATE)
+                                val editor: SharedPreferences.Editor = sharedPreferences.edit()
 
-                            val ngoName = doc.get("Name") as String
+                                editor.putString("ngoEmail", ngoEmail)
+                                editor.putString("ngoName", ngoName)
+                                editor.putString(
+                                    "photoUrl",
+                                    "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.spacetelescope.org%2Fimages%2Fheic1808a%2F&psig=AOvVaw3wRutboX88FRSahHazed3S&ust=1585767636711000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCICu4vyyxegCFQAAAAAdAAAAABAQ"
+                                )
 
-                            val sharedPreferences: SharedPreferences =
-                                this.getSharedPreferences(sharedPrefFile, Context.MODE_PRIVATE)
-                            val editor: SharedPreferences.Editor = sharedPreferences.edit()
+                                editor.apply()
+                                editor.commit()
 
-                            editor.putString("ngoEmail", ngoEmail)
-                            editor.putString("ngoName", ngoName)
-                            editor.putString(
-                                "photoUrl",
-                                "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.spacetelescope.org%2Fimages%2Fheic1808a%2F&psig=AOvVaw3wRutboX88FRSahHazed3S&ust=1585767636711000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCICu4vyyxegCFQAAAAAdAAAAABAQ"
-                            )
+                                //Change intent
+                                val intent = Intent(this, NgoPage::class.java)
+                                //intent.putExtra("email", email)
+                                //Log.i(TAG, "${intent.extras} $email")
+                                startActivity(intent)
+                            } else {
+                                Toast.makeText(
+                                    this,
+                                    "Kindly enter the right Password",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
 
-                            editor.apply()
-                            editor.commit()
-
-                            //Change intent
-                            val intent = Intent(this, NgoPage::class.java)
-                            //intent.putExtra("email", email)
-                            //Log.i(TAG, "${intent.extras} $email")
-                            startActivity(intent)
                         } else {
                             Toast.makeText(
                                 this,
-                                "Kindly enter the right Password",
+                                "NGO does not exist, kindly contact to get your credentials",
                                 Toast.LENGTH_LONG
                             ).show()
+                            val intent = Intent(this, MainActivity::class.java)
+                            startActivity(intent)
                         }
-
-
-                    } else {
-                        Toast.makeText(
-                            this,
-                            "NGO does not exist, kindly contact to get your credentials",
-                            Toast.LENGTH_LONG
-                        ).show()
-                        val intent = Intent(this, MainActivity::class.java)
-                        startActivity(intent)
                     }
-                }
+            } else {
+                Log.i(TAG, "Login Error!")
+                Toast.makeText(this, "Login Error!", Toast.LENGTH_LONG).show()
+            }
         }
-
+    }
         private fun printHexBinary(data: ByteArray): String {
+            Log.i(TAG, "Called!!")
             val res = StringBuilder(data.size * 2)
             data.forEach { byte->
                 val i = byte.toInt()

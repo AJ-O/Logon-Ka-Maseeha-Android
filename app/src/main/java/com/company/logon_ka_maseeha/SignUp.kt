@@ -6,10 +6,12 @@ import android.util.Log
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_sign_up.*
 import java.security.MessageDigest
+import java.util.ArrayList
 
 
 class SignUp : AppCompatActivity() {
@@ -18,6 +20,7 @@ class SignUp : AppCompatActivity() {
         val db = Firebase.firestore
         private const val TAG = "DocSnippets"
         val HEX_CHARS = "0123456789ABCDEF".toCharArray()
+        private lateinit var auth: FirebaseAuth
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,7 +31,7 @@ class SignUp : AppCompatActivity() {
         sign_up.setOnClickListener {
 
             val userEle = sign_up_username as EditText
-            val user = userEle.text.toString()
+            val ngoName = userEle.text.toString()
 
             val emailEle = sign_up_emailId as EditText
             val email = emailEle.text.toString()
@@ -36,12 +39,19 @@ class SignUp : AppCompatActivity() {
             val passEle = sign_up_password as EditText
             val userPassword = passEle.text.toString()
 
-            Log.i(TAG, "$user, $email, $userPassword")
-            if(user.isBlank() or email.isBlank() or userPassword.isBlank()){
+            val ngoCoords = ngoCoordinates as EditText
+            val ngoLocation = ngoCoords.text.toString()
+
+            val coords = ngoLocation.split(" ")
+            val lat = coords[0].toDouble()
+            val long = coords[1].toDouble()
+
+            Log.i(TAG, "$ngoName, $email, $userPassword, $lat, $long")
+            if(ngoName.isBlank() or email.isBlank() or userPassword.isBlank() or ngoLocation.isBlank()){
                 Toast.makeText(this, "Kindly enter the require data", Toast.LENGTH_LONG).show()
             } else {
-                Log.i(TAG, "$user, $email, $userPassword")
-                getData(user, email, userPassword)
+                Log.i(TAG, "$ngoName, $email, $userPassword, $lat, $long")
+                createUser(ngoName, email, userPassword, lat, long)
             }
         }
     }
@@ -56,40 +66,37 @@ class SignUp : AppCompatActivity() {
         return r.toString()
     }
 
-    private fun getData(user: String, email: String, pass: String) {
+    private fun addUserToDatabase(email: String, pass: String, ngoName: String, lat: Double, long: Double){
+        val db = Firebase.firestore
 
-        val docRef = db.collection("Users").document(email)
+        val bytes = MessageDigest.getInstance("SHA-256").digest(pass.toByteArray())
+        val hashedPassword = printHexBinary(bytes)
+        val coords = arrayListOf(lat, long)
 
-        docRef.get()
-            .addOnSuccessListener {
-                    docs ->
-                if (docs.exists()) {
-                    Log.i(TAG, "User exists, kindly sign in!")
-                    val intent = Intent(this, Login::class.java)
-                    startActivity(intent)
-                } else {
-                    val bytes = MessageDigest.getInstance("SHA-256").digest(pass.toByteArray())
-                    val hashedPassword = printHexBinary(bytes)
+        val data = hashMapOf(
+            "Name" to ngoName,
+            "Password" to hashedPassword,
+            "Coordinates" to coords
+        )
 
-                    Log.i(TAG, hashedPassword)
+        db.collection("NGO").document(email).set(data).addOnSuccessListener {
+            Log.i(TAG, "User added successfully!")
+            Toast.makeText(this, "Ngo added successfully!", Toast.LENGTH_LONG).show()
+        }.addOnFailureListener {
+            Log.i(TAG, "Failed to add to database!", it)
+        }
+    }
 
-                    val userData = hashMapOf (
-                        "Name" to user,
-                        "Email" to email,
-                        "Password" to hashedPassword
-                    )
+    private fun createUser(ngoName: String, email: String, pass: String, lat: Double, long: Double) {
 
-                    docRef.set(userData)
-                        .addOnSuccessListener {
-                            Log.i(TAG,"User Added!")
-                            Toast.makeText(this@SignUp, "$user Signed Up, Kindly Login to continue", Toast.LENGTH_LONG).show()
-                            val intent = Intent(this, Login::class.java)
-                            startActivity(intent)
-                        }
-                        .addOnFailureListener {
-                                exception -> Log.i(TAG, "Error: ", exception)
-                        }
-                }
+        auth = FirebaseAuth.getInstance()
+        auth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener{ task ->
+            if(task.isSuccessful){
+                Log.i(TAG, "User created!")
+                addUserToDatabase(email, pass, ngoName, lat, long)
+            } else {
+                Log.i(TAG, "Error: ", task.exception)
             }
+        }
     }
 }
