@@ -45,6 +45,10 @@ class UserPage : AppCompatActivity() {
             builder.setPositiveButton("Yes"){
                     _: DialogInterface?, _: Int ->
                 FirebaseAuth.getInstance().signOut()
+
+                val sharedPreferences: SharedPreferences = getSharedPreferences("appSharedFile", Context.MODE_PRIVATE)
+                sharedPreferences.edit().clear().apply()
+
                 Toast.makeText(this, "User has successfully signed out", Toast.LENGTH_LONG).show()
                 val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
@@ -118,7 +122,8 @@ class UserPage : AppCompatActivity() {
                                 donatedDate,
                                 bmp,
                                 doc.id,
-                                email
+                                email,
+                                imageName
                             )
                         )
                         val adapter = CustomAdapter(lists)

@@ -67,7 +67,8 @@ class StatusPage : AppCompatActivity() {
                                     donatedDate,
                                     bmp,
                                     doc.id,
-                                    email
+                                    email,
+                                    imageName
                                 )
                             )
                             val adapter = CustomAdapter(lists)

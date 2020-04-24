@@ -51,21 +51,27 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
+        //TODO registration token
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
             Log.i(TAG, "User Exists!")
+
+            val db = Firebase.firestore
             val email = user.email
-            val photoUrl = user.photoUrl.toString()
-            val name = user.displayName
-            if (email != null) {
-                if (name != null) {
-                    setSharedPreferences(email, photoUrl, name)
+            email?.let {
+                db.collection("Users").document(it).get().addOnSuccessListener { doc ->
+                    if (doc.exists()) {
+                        val photoUrl = user.photoUrl.toString()
+                        val name = user.displayName
+                        if (name != null) {
+                            setSharedPreferences(email, photoUrl, name)
+                        }
+                        Toast.makeText(this, "User exists! Yay!", Toast.LENGTH_LONG).show()
+                        val intent = Intent(this, UserPage::class.java)
+                        startActivity(intent)
+                    }
                 }
             }
-            Toast.makeText(this, "User exists! Yay!", Toast.LENGTH_LONG).show()
-            val intent = Intent(this, UserPage::class.java)
-            startActivity(intent)
         } else {
             Log.i(TAG, "User does not exist!")
         }

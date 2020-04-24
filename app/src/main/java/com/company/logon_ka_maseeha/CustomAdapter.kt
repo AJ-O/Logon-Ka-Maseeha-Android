@@ -14,10 +14,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.company.logon_ka_maseeha.UserPage.Companion.TAG
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 
 class CustomAdapter(private val listItems: ArrayList<ListItem>) : RecyclerView.Adapter<CustomAdapter.ViewHolder>(){
     companion object {
         val db = Firebase.firestore
+        val storageRef = Firebase.storage.reference
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomAdapter.ViewHolder {
@@ -48,32 +50,32 @@ class CustomAdapter(private val listItems: ArrayList<ListItem>) : RecyclerView.A
             productStatus.text = listItem.productStatus
             donatedDate.text = listItem.donateDate.toString()
             userMobileNo.text = listItem.mobileNo.toString()
+
             val delItemRef = listItem.fbItemUserRef
             val email = listItem.email
-
-            donatedImg.setOnClickListener(increaseSize())
+            val imageName = listItem.imageName
 
             if(listItem.productStatus == "Awaiting Response") {
-                rmItem.setOnClickListener(remove(delItemRef, email))
+                rmItem.setOnClickListener(remove(delItemRef, email, imageName))
             } else {
                 rmItem.visibility = View.GONE
             }
         }
 
-        private fun increaseSize(): (View) -> Unit = {
-            layoutPosition.also {
-                //TODO create popup!
-                Log.i(TAG, "Need to create popups")
-            }
-        }
-
-        private fun remove(delId: String, email: String): (View) -> Unit = {
+        private fun remove(delId: String, email: String, imageName: String): (View) -> Unit = {
             layoutPosition.also {
 
                 db.collection("Users/$email/Donated_Items").document(delId).delete().addOnSuccessListener {
                     Log.i(TAG, "Item Deleted")
                     db.collection("Items_Donated").document(delId).delete().addOnSuccessListener {
                         Log.i(TAG, "Item Deleted from Items Donated collection")
+                        //TODO delete image
+                        val imageRef = storageRef.child(imageName)
+                        imageRef.delete().addOnSuccessListener {
+                            Log.i(TAG, "Image deleted!")
+                        }.addOnFailureListener {exception ->
+                            Log.i(TAG, "$exception")
+                        }
                     }.addOnFailureListener{
                         Log.i(TAG, "Failed to delete in Items donated collection")
                     }

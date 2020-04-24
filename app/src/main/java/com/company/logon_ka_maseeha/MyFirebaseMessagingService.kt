@@ -41,6 +41,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService(){
                 // For long-running tasks (10 seconds or more) use WorkManager.
                 //scheduleJob()
                 Log.i(TAG, "Random if!")
+                val data: Map<String, String> = p0.data
+                //TODO display message to user when using the app
             } else {
                 // Handle message within 10 seconds
                 //handleNow()
@@ -60,13 +62,13 @@ class MyFirebaseMessagingService : FirebaseMessagingService(){
             val sharedPreferences: SharedPreferences = getSharedPreferences("appSharedFile", Context.MODE_PRIVATE)
             val email = sharedPreferences.getString("email", "")
             val db = Firebase.firestore
-            if (email != null) {
-                db.collection("Users").document(email).update("registrationToken", token).addOnSuccessListener {
+            if (email != null && email != "") {
+                val docRef = db.collection("Users").document(email)
+                docRef.update("registrationToken", token).addOnCompleteListener{
                     Log.i("DocSnippets", "Registration token updated")
                 }.addOnFailureListener{
                     exception ->  Log.i("DocSnippets", "Registration token not updated!", exception)
                 }
-                
             }
     }
 }

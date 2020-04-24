@@ -42,6 +42,13 @@ class NgoPage : AppCompatActivity() {
             builder.setMessage("Do you want to sign out?")
             builder.setPositiveButton("Yes"){ _, _  ->
                 FirebaseAuth.getInstance().signOut()
+
+                val sharedPreferences: SharedPreferences = getSharedPreferences("appSharedFile", Context.MODE_PRIVATE)
+                sharedPreferences.edit().clear().apply()
+
+                Toast.makeText(this, "Ngo has successfully signed out", Toast.LENGTH_LONG).show()
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
             }
             builder.setNegativeButton("No"){ _, _ -> }
             val alertDialog: AlertDialog = builder.create()
