@@ -106,9 +106,6 @@ exports.sendMailToNgo = functions.https.onRequest(async (req, res) => {
     })
 });
 
-exports.myStorageFunction = functions.region("asia-east2")
-
-
 function sendMailUpdate(ngoEmail) {
 
     return new Promise((resolve, reject) => {
