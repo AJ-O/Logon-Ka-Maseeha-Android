@@ -45,10 +45,8 @@ class NgoItemCustomAdapter (private val donatedItems: ArrayList<NgoItemDisplayDa
             val ngoEmail = donateItem.ngoEmail
             val itemStatus = donateItem.productStatus
 
-
-            //TODO Work with statuses -- check for persistence in status
             when (itemStatus){
-                "Accepted Item" -> itemStatusBtn.text = "Item Collected"
+                "Item Accepted" -> itemStatusBtn.text = "Item Collected"
                 "Item Collected" -> itemStatusBtn.text = "Item Donated"
                 else -> itemStatusBtn.visibility = View.GONE
             }
@@ -80,7 +78,7 @@ class NgoItemCustomAdapter (private val donatedItems: ArrayList<NgoItemDisplayDa
         }
 
         private fun getNextStatus(itemStatus: String): String {
-            if (itemStatus == "Accepted Item") {
+            if (itemStatus == "Item Accepted") {
                 return "Item Collected"
             } else if (itemStatus == "Item Collected") {
                 return "Item Donated"

@@ -65,7 +65,7 @@ class DonatedItemCustomAdapter(private val donatedItems: ArrayList<NgoItemDispla
 
                 val documentFields = hashMapOf(
                     "Type" to donateItem.productType,
-                    "Status" to "Accepted Item",
+                    "Status" to "Item Accepted",
                     "Address" to donateItem.itemAddress,
                     "ImageName" to donateItem.imageName,
                     "Mobile_No" to donateItem.mobileNo,
@@ -77,7 +77,7 @@ class DonatedItemCustomAdapter(private val donatedItems: ArrayList<NgoItemDispla
                 //Set data for NGO
                 db.collection("NGO").document(donateItem.ngoEmail).collection("Selected_Items").document(itemId).set(documentFields).addOnSuccessListener {
                     //Update data for the individual User
-                    db.collection("Users").document(donateItem.userEmail).collection("Donated_Items").document(itemId).update("Status", "Accepted Item").addOnSuccessListener {
+                    db.collection("Users").document(donateItem.userEmail).collection("Donated_Items").document(itemId).update("Status", "Item Accepted").addOnSuccessListener {
                         //Delete document from Items Donated collection
                         db.collection("Items_Donated").document(itemId).delete().addOnSuccessListener {
                             donatedItems.removeAt(adapterPosition)
