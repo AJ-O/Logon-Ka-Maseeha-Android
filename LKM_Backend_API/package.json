@@ -1,0 +1,16 @@
+{
+  "name": "lkm_backend",
+  "version": "1.0.0",
+  "description": "Backend for Logon Ka Maseeha",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "firebase": "^7.14.1",
+    "nodemailer": "^6.4.6"
+  }
+}
