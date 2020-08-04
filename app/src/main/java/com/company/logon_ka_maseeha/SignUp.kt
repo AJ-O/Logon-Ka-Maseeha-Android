@@ -1,6 +1,5 @@
 package com.company.logon_ka_maseeha
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.EditText
@@ -11,7 +10,6 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_sign_up.*
 import java.security.MessageDigest
-import java.util.ArrayList
 
 
 class SignUp : AppCompatActivity() {

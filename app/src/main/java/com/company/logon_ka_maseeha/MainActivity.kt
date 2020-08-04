@@ -82,8 +82,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         gSignIn.setOnClickListener {
-            Log.i(TAG, "Called Google sign in")
             signIn()
+        }
+
+        register.setOnClickListener {
+            val intent = Intent(this, SignUp::class.java)
+            startActivity(intent)
         }
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
