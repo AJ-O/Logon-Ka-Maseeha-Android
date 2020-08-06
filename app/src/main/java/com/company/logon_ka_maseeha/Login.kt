@@ -13,6 +13,7 @@ import kotlinx.android.synthetic.main.activity_login.*
 import java.lang.StringBuilder
 import java.security.MessageDigest
 import android.content.SharedPreferences
+import androidx.appcompat.app.AlertDialog
 import com.google.firebase.auth.FirebaseAuth
 
 class Login : AppCompatActivity() {
@@ -34,6 +35,18 @@ class Login : AppCompatActivity() {
         if (auth.currentUser != null) {
             val intent = Intent(this, NgoPage::class.java)
             startActivity(intent)
+        }
+
+        register.setOnClickListener {
+//            val intent = Intent(this, Register::class.java)
+//            startActivity(intent)
+            val builder = AlertDialog.Builder(this);
+            builder.setTitle("Register")
+            builder.setMessage("If you would like to register with us, kindly send details about your ngo to logonkamaseeha@gmail.com")
+            builder.setPositiveButton("Great"){_,_ -> }
+            val alertDialog: AlertDialog = builder.create()
+            alertDialog.setCancelable(true)
+            alertDialog.show()
         }
 
         login.setOnClickListener {

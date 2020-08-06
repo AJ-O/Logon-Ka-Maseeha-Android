@@ -12,7 +12,7 @@ import kotlinx.android.synthetic.main.activity_sign_up.*
 import java.security.MessageDigest
 
 
-class SignUp : AppCompatActivity() {
+class Register : AppCompatActivity() {
 
     companion object {
         val db = Firebase.firestore
